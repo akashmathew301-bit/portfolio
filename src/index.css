@@ -1,0 +1,382 @@
+@import '@fontsource/poppins/400.css';
+@import '@fontsource/poppins/500.css';
+@import '@fontsource/poppins/600.css';
+@import '@fontsource/poppins/700.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================
+   BASE
+   ============================================================ */
+@layer base {
+  :root {
+    --blue-deep: #004b93;
+    --blue-main: #0a6cff;
+    --blue-glow: #2d9cff;
+    --ink: #000000;
+    --ink-950: #05070a;
+    --muted: #9aa4b2;
+    --nav-h: 76px;
+  }
+
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: var(--nav-h);
+  }
+
+  /* Lenis takes over scrolling; disable native smooth to avoid a fight. */
+  html.lenis,
+  html.lenis body {
+    height: auto;
+  }
+  html.lenis {
+    scroll-behavior: auto;
+  }
+  .lenis.lenis-smooth {
+    scroll-behavior: auto !important;
+  }
+  .lenis.lenis-stopped {
+    overflow: hidden;
+  }
+
+  body {
+    @apply bg-ink font-sans text-white antialiased;
+    overflow-x: hidden;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display font-semibold tracking-tight;
+    text-wrap: balance;
+  }
+
+  ::selection {
+    background: rgba(10, 108, 255, 0.85);
+    color: #fff;
+  }
+
+  /* Visible, on-brand focus ring for keyboard users */
+  :focus-visible {
+    outline: 2px solid var(--blue-glow);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #05070a;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(#0a6cff, #004b93);
+    border-radius: 10px;
+  }
+}
+
+/* ============================================================
+   COMPONENTS
+   ============================================================ */
+@layer components {
+  .container-x {
+    @apply mx-auto w-full max-w-[1320px] px-5 sm:px-8 lg:px-12;
+  }
+
+  .section-pad {
+    @apply py-20 sm:py-24 lg:py-32;
+  }
+
+  .glass {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.015));
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+
+  .glass-strong {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.025));
+    border: 1px solid rgba(255, 255, 255, 0.11);
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+  }
+
+  .text-grad {
+    background: linear-gradient(100deg, #6cc0ff 0%, #2d9cff 38%, #0a6cff 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    /* keep descenders from clipping */
+    padding-bottom: 0.08em;
+  }
+
+  .eyebrow {
+    @apply inline-flex items-center gap-2 overflow-hidden rounded-full border border-white/10 bg-white/[0.04] px-4 py-1.5 font-sans text-[11px] font-medium uppercase tracking-[0.18em] text-muted sm:text-xs;
+  }
+
+  /* Permanently rotating gradient ring — used by the back-to-top button.
+     The conic gradient spins inside a ring-shaped mask, so the glow appears
+     to travel around the border. */
+  .glow-ring::after {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: inherit;
+    background: conic-gradient(
+      from 0deg,
+      transparent 0deg,
+      rgba(45, 156, 255, 0.95) 55deg,
+      rgba(10, 108, 255, 0.5) 110deg,
+      transparent 190deg,
+      transparent 300deg,
+      rgba(45, 156, 255, 0.8) 350deg,
+      transparent 360deg
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    padding: 2px;
+    animation: spin-slow 3.2s linear infinite;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* Animated gradient border wrapper */
+  .grad-border {
+    position: relative;
+    isolation: isolate;
+  }
+  .grad-border::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+      var(--angle, 120deg),
+      rgba(45, 156, 255, 0.75),
+      rgba(10, 108, 255, 0.15) 40%,
+      rgba(255, 255, 255, 0.06) 60%,
+      rgba(45, 156, 255, 0.55)
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
+    z-index: 2;
+  }
+  .grad-border:hover::before,
+  .grad-border:focus-within::before {
+    opacity: 1;
+  }
+}
+
+/* ============================================================
+   UTILITIES
+   ============================================================ */
+@layer utilities {
+  .edge-fade {
+    -webkit-mask-image: radial-gradient(
+      135% 120% at 50% 48%,
+      #000 55%,
+      rgba(0, 0, 0, 0.7) 76%,
+      transparent 100%
+    );
+    mask-image: radial-gradient(
+      135% 120% at 50% 48%,
+      #000 55%,
+      rgba(0, 0, 0, 0.7) 76%,
+      transparent 100%
+    );
+  }
+
+  .fade-bottom {
+    -webkit-mask-image: linear-gradient(to bottom, #000 72%, transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 72%, transparent 100%);
+  }
+
+  .noise {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  }
+
+  .grid-lines {
+    background-image:
+      linear-gradient(to right, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+    background-size: 72px 72px;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .will-tf {
+    will-change: transform;
+  }
+}
+
+/* ============================================================
+   KEYFRAMES
+   ============================================================ */
+@keyframes marquee-x {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@keyframes float-y {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -12px, 0);
+  }
+}
+
+@keyframes spin-slow {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.65;
+  }
+  70% {
+    transform: scale(1.7);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.7);
+    opacity: 0;
+  }
+}
+
+@keyframes glow-breathe {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.06);
+  }
+}
+
+@keyframes bob {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -6px, 0);
+  }
+}
+
+@keyframes wiggle {
+  0%,
+  88%,
+  100% {
+    transform: rotate(0deg);
+  }
+  91% {
+    transform: rotate(-12deg);
+  }
+  94% {
+    transform: rotate(12deg);
+  }
+  97% {
+    transform: rotate(-6deg);
+  }
+}
+
+@keyframes beam-sweep {
+  0% {
+    transform: translateX(-120%) skewX(-18deg);
+  }
+  100% {
+    transform: translateX(320%) skewX(-18deg);
+  }
+}
+
+@keyframes shimmer {
+  to {
+    background-position: 200% center;
+  }
+}
+
+.animate-marquee {
+  animation: marquee-x var(--marquee-duration, 36s) linear infinite;
+}
+.animate-marquee-rev {
+  animation: marquee-x var(--marquee-duration, 36s) linear infinite reverse;
+}
+.marquee-paused {
+  animation-play-state: paused;
+}
+.animate-float {
+  animation: float-y 6s ease-in-out infinite;
+}
+.animate-spin-slow {
+  animation: spin-slow 24s linear infinite;
+}
+.animate-breathe {
+  animation: glow-breathe 7s ease-in-out infinite;
+}
+.animate-bob {
+  animation: bob 3.2s ease-in-out infinite;
+}
+.animate-wiggle {
+  animation: wiggle 4s ease-in-out infinite;
+}
+.animate-beam {
+  animation: beam-sweep 4.5s ease-in-out infinite;
+}
+
+/* ============================================================
+   REDUCED MOTION
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .animate-marquee,
+  .animate-marquee-rev,
+  .animate-bob,
+  .animate-wiggle,
+  .animate-beam,
+  .glow-ring::after {
+    animation: none !important;
+  }
+}
