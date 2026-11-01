@@ -15,11 +15,13 @@ export default {
           main: '#0A6CFF',
           glow: '#2D9CFF',
         },
-        muted: '#9AA4B2',
+        muted: '#CBD4E0',
       },
       fontFamily: {
         display: ['Poppins', 'system-ui', 'sans-serif'],
         sans: ['Poppins', 'system-ui', 'sans-serif'],
+        /* no webfont download: the brief editor uses whatever mono the OS has */
+        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Consolas', 'monospace'],
       },
       boxShadow: {
         glow: '0 0 40px -10px rgba(10,108,255,0.55)',

@@ -1,7 +1,7 @@
 /**
  * Keys the studio headshot off its blue-grey backdrop.
  *
- * Darkness keying is useless here — the blazer and shirt are nearly black while
+ * Darkness keying is useless here, the blazer and shirt are nearly black while
  * the backdrop is a mid blue-grey. What separates them cleanly is hue: every
  * backdrop pixel is markedly blue (blue channel well above red), while hair,
  * blazer and skin are neutral or warm. So we flood fill from the border on

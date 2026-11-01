@@ -7,7 +7,13 @@ import useTilt from '../hooks/useTilt'
 import { scrollToId } from '../lib/smoothScroll'
 import projects from '../data/projects'
 
-function ProjectCard({ project }) {
+/** cornext.in from https://cornext.in/whatever, for the chrome bar. */
+function domainOf(url) {
+  if (!url) return 'preview'
+  return url.replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/\/.*$/, '')
+}
+
+function ProjectCard({ project, index }) {
   const tiltRef = useTilt({ max: 5, scale: 1.01 })
   const clickable = Boolean(project.url)
   const Tag = clickable ? 'a' : 'article'
@@ -19,22 +25,49 @@ function ProjectCard({ project }) {
       target={clickable ? '_blank' : undefined}
       rel={clickable ? 'noopener noreferrer' : undefined}
       data-cursor="hover"
-      className="grad-border group relative block h-full overflow-hidden rounded-3xl [transform-style:preserve-3d] will-tf"
+      className="grad-border group relative block h-full overflow-hidden rounded-[26px] [transform-style:preserve-3d] will-tf"
       style={{ '--mx': '50%', '--my': '50%' }}
     >
-      <div className="glass relative h-full overflow-hidden rounded-3xl">
-        {/* visual */}
+      <div className="glass relative flex h-full flex-col overflow-hidden rounded-[26px]">
+        {/* corner bloom */}
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full bg-[radial-gradient(circle,rgba(45,156,255,0.35),transparent_70%)] opacity-0 blur-2xl transition-opacity duration-700 group-hover:opacity-100"
+        />
+
+        {/* ---- browser chrome: the screenshot reads as a live site, not a picture ---- */}
+        <div className="relative z-10 flex items-center gap-2 border-b border-white/[0.07] bg-white/[0.03] px-4 py-2.5">
+          <span aria-hidden="true" className="flex items-center gap-1.5">
+            <span className="h-2 w-2 rounded-full bg-[#FF5F57]/70" />
+            <span className="h-2 w-2 rounded-full bg-[#FEBC2E]/70" />
+            <span className="h-2 w-2 rounded-full bg-[#28C840]/70" />
+          </span>
+          <span className="ml-1 flex min-w-0 flex-1 items-center gap-1.5 rounded-full border border-white/[0.07] bg-ink-950/60 px-2.5 py-1">
+            <Icon name="check" size={9} strokeWidth={3} className="shrink-0 text-[#2BE673]" />
+            <span className="truncate font-mono text-[11px] text-white/60">
+              {domainOf(project.url)}
+            </span>
+          </span>
+          <span
+            aria-hidden="true"
+            className="font-mono text-[11px] tabular-nums text-white/25 transition-colors duration-500 group-hover:text-blue-glow/70"
+          >
+            {String(index + 1).padStart(2, '0')}
+          </span>
+        </div>
+
+        {/* ---- visual ---- */}
         <div className="relative aspect-[16/11] w-full overflow-hidden">
           <SmartImage
             src={project.image}
             fallback={project.fallback}
-            alt={project.title + ' — ' + project.category}
-            className="h-full w-full transition-transform duration-[900ms] ease-premium group-hover:scale-[1.06]"
+            alt={project.title + ', ' + project.category}
+            className="h-full w-full transition-transform duration-[900ms] ease-premium group-hover:scale-[1.07]"
             placeholderLabel="Screenshot coming soon"
           />
           <span
             aria-hidden="true"
-            className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_top,rgba(0,0,0,0.9),rgba(0,0,0,0.15)_55%,transparent)]"
+            className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_top,rgba(4,8,15,0.96),rgba(4,8,15,0.25)_52%,transparent)]"
           />
           <span
             aria-hidden="true"
@@ -51,42 +84,54 @@ function ProjectCard({ project }) {
             </span>
           )}
 
-          <span className="absolute right-4 top-4 rounded-full border border-white/10 bg-ink-950/70 px-2.5 py-1 text-[11px] text-muted backdrop-blur">
-            {project.year}
-          </span>
-        </div>
-
-        {/* body */}
-        <div className="relative z-10 -mt-12 px-5 pb-5 sm:px-6 sm:pb-6">
-          <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-blue-glow">
-            {project.category}
-          </p>
-          <h3 className="mt-2 flex items-center gap-2 font-display text-xl font-semibold tracking-tight text-white sm:text-2xl">
-            {project.title}
-            <Icon
-              name="arrowUpRight"
-              size={18}
-              className="translate-y-0.5 text-muted opacity-0 transition-all duration-500 ease-premium group-hover:translate-y-0 group-hover:text-blue-glow group-hover:opacity-100"
-            />
-          </h3>
-
-          {/* hover-revealed blurb */}
-          <div className="grid grid-rows-[0fr] transition-[grid-template-rows] duration-[600ms] ease-premium group-hover:grid-rows-[1fr] group-focus-within:grid-rows-[1fr]">
-            <div className="overflow-hidden">
-              <p className="pt-3 text-[13.5px] leading-relaxed text-muted">{project.blurb}</p>
+          {/* the blurb slides out of the image, so the card height never jumps */}
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 px-5 pb-4 sm:px-6">
+            <div className="grid grid-rows-[0fr] transition-[grid-template-rows] duration-[600ms] ease-premium group-hover:grid-rows-[1fr] group-focus-within:grid-rows-[1fr]">
+              <div className="overflow-hidden">
+                <p className="text-[13px] leading-relaxed text-white/85">{project.blurb}</p>
+              </div>
             </div>
           </div>
+        </div>
+
+        {/* ---- body ---- */}
+        <div className="relative z-10 flex flex-1 flex-col px-5 pb-5 pt-4 sm:px-6 sm:pb-6">
+          <div className="flex items-center gap-3">
+            <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-blue-glow">
+              {project.category}
+            </p>
+            <span aria-hidden="true" className="h-px flex-1 bg-white/[0.09]" />
+            <span className="font-mono text-[11px] tabular-nums text-muted">{project.year}</span>
+          </div>
+
+          <h3 className="mt-2.5 font-display text-xl font-semibold tracking-tight text-white sm:text-2xl">
+            {project.title}
+          </h3>
 
           <ul className="mt-4 flex flex-wrap gap-1.5">
             {project.tags.map((t) => (
               <li
                 key={t}
-                className="rounded-full border border-white/[0.08] bg-white/[0.03] px-2.5 py-1 text-[11px] text-muted/90"
+                className="rounded-full border border-white/[0.08] bg-white/[0.03] px-2.5 py-1 text-[11px] text-white/70 transition-colors duration-500 group-hover:border-blue-main/30 group-hover:text-white"
               >
                 {t}
               </li>
             ))}
           </ul>
+
+          {/* same CTA treatment as the service cards */}
+          <div className="mt-auto flex items-center justify-between gap-3 pt-6">
+            <span className="inline-flex items-center gap-2 rounded-full bg-blue-grad px-4 py-2 text-[12.5px] font-medium text-white shadow-glow-sm transition-shadow duration-500 ease-premium group-hover:shadow-glow">
+              {clickable ? 'Visit live site' : 'Case study soon'}
+            </span>
+            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-grad text-white shadow-glow-sm transition-shadow duration-500 ease-premium group-hover:shadow-glow">
+              <Icon
+                name="arrowUpRight"
+                size={15}
+                className="transition-transform duration-500 ease-premium group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+              />
+            </span>
+          </div>
         </div>
       </div>
     </Tag>
@@ -104,7 +149,7 @@ export default function Work() {
               'Real sites, real',
               { text: 'businesses, live today.', node: <span className="text-grad">businesses, live today.</span> },
             ]}
-            lead="Every one of these is live right now. Manufacturing, healthcare, legal, agri-tech, fitness, retail and events — tap a card to open the site and judge it yourself."
+            lead="Every one of these is live right now and earning its keep. Manufacturing, healthcare, legal, agri-tech, fitness, retail and events. Open any of them and judge the work yourself."
             className="max-w-2xl"
           />
           <div className="shrink-0">
@@ -115,13 +160,13 @@ export default function Work() {
         </div>
 
         <RevealGroup
-          className="mt-12 grid gap-4 [perspective:1400px] sm:mt-14 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5"
+          className="mt-9 grid gap-4 [perspective:1400px] sm:mt-10 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5"
           stagger={0.08}
           amount={0.1}
         >
-          {projects.map((project) => (
+          {projects.map((project, i) => (
             <RevealItem key={project.id} className="h-full">
-              <ProjectCard project={project} />
+              <ProjectCard project={project} index={i} />
             </RevealItem>
           ))}
         </RevealGroup>

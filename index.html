@@ -8,14 +8,14 @@
     <title>Akash Web Solutions | Web Developer & Digital Growth Partner in Coimbatore</title>
     <meta
       name="description"
-      content="Akash builds fast, high-converting websites for local businesses and brands in Coimbatore — website development, revamp, e-commerce, SEO, digital marketing, logo design, video editing and social media management."
+      content="Akash builds fast, high-converting websites for businesses anywhere, based in Coimbatore: website development, revamp, e-commerce, SEO, digital marketing, logo design, video editing and social media management."
     />
     <meta name="author" content="Akash" />
     <meta name="keywords" content="web developer Coimbatore, website design Coimbatore, SEO Coimbatore, digital marketing, e-commerce website, website revamp, logo design, video editing, social media management" />
     <link rel="canonical" href="https://akashwebsolutions.in/" />
 
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="apple-touch-icon" href="/images/og-cover.jpg" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
@@ -23,7 +23,7 @@
     <meta property="og:title" content="Akash Web Solutions | Websites that bring customers" />
     <meta
       property="og:description"
-      content="Web developer & digital growth partner for local businesses and brands. Websites, SEO, marketing and design — built in Coimbatore, India."
+      content="Web developer & digital growth partner for businesses anywhere. Websites, SEO, marketing and design. Based in Coimbatore, India."
     />
     <meta property="og:url" content="https://akashwebsolutions.in/" />
     <meta property="og:image" content="https://akashwebsolutions.in/images/og-cover.jpg" />
@@ -36,7 +36,7 @@
     <meta name="twitter:title" content="Akash Web Solutions | Websites that bring customers" />
     <meta
       name="twitter:description"
-      content="Web developer & digital growth partner for local businesses and brands in Coimbatore, India."
+      content="Web developer & digital growth partner. Websites, SEO and marketing for businesses anywhere, based in Coimbatore, India."
     />
     <meta name="twitter:image" content="https://akashwebsolutions.in/images/og-cover.jpg" />
 
@@ -45,67 +45,10 @@
     <link rel="preload" as="image" href="/images/akash-portrait-cutout.webp" type="image/webp" media="(max-width: 1023px)" fetchpriority="high" />
 
 
-    <!-- Instant boot layer: paints as soon as the CSS lands, so a slow
-         connection never shows a blank black screen while the JS bundle
-         downloads. React's preloader renders on top and removes it. -->
+    <!-- Paints the page background before the CSS bundle lands, so a slow
+         connection never flashes white. -->
     <style>
       html { background: #000; }
-      #boot {
-        position: fixed;
-        inset: 0;
-        z-index: 190;
-        background: #000;
-        color: #9aa4b2;
-        font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        padding: 20px;
-      }
-      #boot .row { display: flex; justify-content: space-between; gap: 16px; }
-      #boot .hud {
-        font-size: 10px;
-        letter-spacing: 0.28em;
-        text-transform: uppercase;
-      }
-      #boot .glow {
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        width: 46vw;
-        max-width: 460px;
-        aspect-ratio: 1;
-        transform: translate(-50%, -50%);
-        border-radius: 50%;
-        background: radial-gradient(circle, rgba(10, 108, 255, 0.22), transparent 66%);
-        filter: blur(40px);
-      }
-      #boot .rail {
-        position: relative;
-        margin-top: 16px;
-        height: 1px;
-        width: 100%;
-        overflow: hidden;
-        background: rgba(255, 255, 255, 0.1);
-      }
-      #boot .rail i {
-        position: absolute;
-        inset: 0;
-        display: block;
-        transform-origin: left;
-        background: linear-gradient(100deg, #2d9cff, #0a6cff 45%, #004b93);
-        box-shadow: 0 0 12px rgba(45, 156, 255, 0.8);
-        animation: boot-fill 2.4s cubic-bezier(0.22, 1, 0.36, 1) infinite;
-      }
-      @keyframes boot-fill {
-        0% { transform: scaleX(0); }
-        70% { transform: scaleX(0.82); }
-        100% { transform: scaleX(0.92); }
-      }
-      @media (min-width: 640px) { #boot { padding: 32px; } }
-      @media (prefers-reduced-motion: reduce) {
-        #boot .rail i { animation: none; transform: scaleX(0.6); }
-      }
     </style>
 
     <script type="application/ld+json">
@@ -179,17 +122,6 @@
     </script>
   </head>
   <body>
-    <div id="boot" aria-hidden="true">
-      <div class="row">
-        <span class="hud">Akash Web Solutions</span>
-        <span class="hud">Coimbatore &middot; IN</span>
-      </div>
-      <span class="glow"></span>
-      <div>
-        <span class="hud">Loading experience</span>
-        <div class="rail"><i></i></div>
-      </div>
-    </div>
     <div id="root"></div>
     <noscript>
       <div style="padding:2rem;color:#fff;background:#000;font-family:system-ui">

@@ -8,7 +8,7 @@
  *    straight through him. Only black reachable from the frame edge is backdrop.
  *
  * 2. A GRADED (soft) MATTE, not a binary one. The backdrop is not uniformly
- *    #000 — there is a dark grey vignette around the subject (luma 20-46, which
+ *    #000, there is a dark grey vignette around the subject (luma 20-46, which
  *    overlaps his hair). A hard cut-off there left a ragged grey slab beside his
  *    leg: invisible on pure black, obvious once a glow sat behind it. Instead
  *    alpha ramps from 0 at HARD_BLACK to 255 at SOFT_MAX, so the vignette fades
@@ -67,10 +67,10 @@ while (top > 0) {
    The backdrop is not uniformly #000: a soft grey vignette wraps the subject.
    Where that vignette is sealed off from the frame edge (e.g. between his leg,
    the chair and the plant pot) the border fill never reaches it, and it was
-   left behind as a ragged grey slab — invisible on pure black but obvious once
+   left behind as a ragged grey slab, invisible on pure black but obvious once
    a glow sits behind it.
-   Those pockets are NEUTRAL grey. The other dark things in the frame — the UI
-   cards, the laptop screen — are navy. So: unreachable + dark + neutral + big
+   Those pockets are NEUTRAL grey. The other dark things in the frame, the UI
+   cards, the laptop screen, are navy. So: unreachable + dark + neutral + big
    enough to be a region rather than a crease = backdrop.                      */
 const pocket = new Uint8Array(N)
 {
@@ -154,7 +154,7 @@ if (!Number.isInteger(aStride)) throw new Error('unexpected alpha buffer length 
 /* The studio backdrop has a soft grey vignette that is genuinely the same
    brightness and texture as his black trousers and the chair, so no automatic
    key can separate the two down there. Rather than leave a ragged edge, the
-   bottom of the frame is faded out — the figure dissolves into the page and
+   bottom of the frame is faded out, the figure dissolves into the page and
    the chair base, the shoes and the blue floor swoosh go with it. */
 const FADE_START = 0.84
 const FADE_END = 1.0

@@ -3,19 +3,20 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 import Backdrop from './components/Backdrop'
 import Cursor from './components/Cursor'
-import FloatingWhatsApp from './components/FloatingWhatsApp'
+import FloatingDock from './components/FloatingDock'
 import Navbar from './components/Navbar'
-import Preloader from './components/Preloader'
+import OfferPopup from './components/OfferPopup'
+import ScrollStage from './components/ScrollStage'
 import ScrollProgress from './components/ScrollProgress'
 
 import About from './sections/About'
 import Contact from './sections/Contact'
 import Footer from './sections/Footer'
 import Hero from './sections/Hero'
+import Industries from './sections/Industries'
 import Process from './sections/Process'
 import Reviews from './sections/Reviews'
 import Services from './sections/Services'
-import ServicesMarquee from './sections/ServicesMarquee'
 import Work from './sections/Work'
 
 import { AppProvider, useApp } from './context/AppContext'
@@ -34,15 +35,16 @@ function Site() {
     }
   }, [reduced])
 
-  const handleLoaded = () => {
+  /* No curtain any more: the page is live immediately, so the hero's entrance
+     starts on mount and the triggers are measured once layout has settled. */
+  useEffect(() => {
     setLoaded(true)
-    // Positions settle once the curtain is gone — re-measure every trigger.
-    window.setTimeout(() => ScrollTrigger.refresh(), 120)
-  }
+    const id = window.setTimeout(() => ScrollTrigger.refresh(), 160)
+    return () => window.clearTimeout(id)
+  }, [setLoaded])
 
   return (
     <>
-      <Preloader onComplete={handleLoaded} />
 
       <a
         href="#main"
@@ -58,17 +60,32 @@ function Site() {
 
       <main id="main">
         <Hero />
-        <ServicesMarquee />
-        <About />
-        <Services />
-        <Process />
-        <Work />
-        <Reviews />
-        <Contact />
+        {/* <OrbitBanner /> is kept in src/sections, currently switched off */}
+        {/* each scene fades in on arrival and back out on exit */}
+        <ScrollStage>
+          <About />
+          <Industries />
+        </ScrollStage>
+        <ScrollStage>
+          <Services />
+        </ScrollStage>
+        <ScrollStage>
+          <Process />
+        </ScrollStage>
+        <ScrollStage>
+          <Work />
+        </ScrollStage>
+        <ScrollStage>
+          <Reviews />
+        </ScrollStage>
+        <ScrollStage>
+          <Contact />
+        </ScrollStage>
       </main>
 
       <Footer />
-      <FloatingWhatsApp />
+      <FloatingDock />
+      <OfferPopup />
     </>
   )
 }

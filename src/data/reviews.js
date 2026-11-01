@@ -1,67 +1,75 @@
 /* ------------------------------------------------------------------
    REVIEWS
    ------------------------------------------------------------------
-   ⚠️  IMPORTANT — THESE ARE SAMPLE REVIEWS, NOT REAL CLIENT FEEDBACK.
+   ⚠️  READ THIS BEFORE THE SITE GOES LIVE.
 
-   They are written in the Tanglish tone Akash asked for so the section
-   looks finished while the site is being built. Publishing invented
-   testimonials as genuine client reviews is deceptive and falls foul of
-   India's consumer-protection rules on fake reviews — replace every entry
-   below with a real one (with the client's permission) before going live.
+   The wording below is PLACEHOLDER text. The businesses are real clients
+   from /src/data/projects.js, but none of them has actually said these
+   words yet, and the contact names are not their real people.
+
+   Publishing a quote somebody never gave is a fabricated endorsement:
+   it misleads the visitor and it falls foul of India's consumer rules on
+   fake reviews. So before launch, do this:
+
+     1. WhatsApp three or four of these clients and ask for one line
+        about the work, plus permission to put it on the site.
+     2. Replace `text`, `name` and `role` with exactly what they sent.
+     3. Delete any entry you could not get a real quote for. Four honest
+        reviews beat eight invented ones.
 
    Shape: { name, role, business, rating (1-5), text, avatar }
-   `avatar` can be an image path like '/images/reviews/ravi.webp'
-   or null — the UI then shows the person's initials.
+   `avatar` can be an image path like '/images/reviews/ravi.webp' or null,
+   in which case the UI shows the person's initials.
    The UI handles any number of reviews (1 to 20+) automatically.
    ------------------------------------------------------------------ */
 
 export const reviews = [
   {
-    name: 'Karthik Raja',
-    role: 'Owner',
-    business: 'Iron Core Fitness, Saravanampatti',
+    name: 'Dr. Aravind',
+    role: 'Clinic Director',
+    business: 'Nalan Dental Care, Coimbatore',
     rating: 5,
-    text: 'Munnadi enga gym-ku Instagram page mattum dhaan irundhuchu. Akash website panninaanga, class timetable, trainer details ellaam clean ah irukku. Mukkiyamana vishayam — WhatsApp enquiry button. Oru month-la walk-in double aagiduchu. Work fast, updates daily kudupaanga.',
+    text: 'Patients used to call just to ask the timing and the address. Now the site answers that and they book straight from the phone. Appointment-ku call panradhu kammi aayiduchu, treatment-la concentrate panna mudiyudhu.',
     avatar: null,
   },
   {
-    name: 'Divya Shankar',
-    role: 'Founder',
-    business: 'Velvet Thread Boutique',
-    rating: 5,
-    text: 'Online store venum nu nenachen, but technical side pathi enakku onnum theriyadhu. Akash full setup panni kuduthaanga — product pages, payment gateway, delivery. Mobile-la site romba premium ah feel aagudhu. Customers checkout easy ah mudikiraanga, orders steady ah varudhu.',
-    avatar: null,
-  },
-  {
-    name: 'Dr. Arun Prasad',
-    role: 'Director',
-    business: 'Prasad Dental Care',
-    rating: 5,
-    text: 'Our old website was slow and nobody could find us on Google. Akash rebuilt it and did the local SEO. Ippo "dentist near me" search panna enga clinic Google map-la varudhu. Appointment form vandhadhukku aprom front desk work romba kammi aayiduchu. Very professional and patient with all our changes.',
-    avatar: null,
-  },
-  {
-    name: 'Mohammed Irfan',
-    role: 'Partner',
-    business: 'GreenField Agri Supplies',
-    rating: 5,
-    text: 'Agri products online-la sell panradhu konjam kashtam, bulk pricing ellaam irukku. Akash andha logic ah correct ah set panninaanga. Farmers-ku easy ah puriyura maadhiri Tamil-la content podhuma nu kooda suggest panninaanga. Good thinking, not just coding.',
-    avatar: null,
-  },
-  {
-    name: 'Sneha Ramesh',
-    role: 'Marketing Head',
-    business: 'Brew & Co. Cafe',
+    name: 'Suresh Kumar',
+    role: 'Export Manager',
+    business: 'Super Tech Laces, Tiruppur',
     rating: 4.5,
-    text: 'Reels edit and social media handling Akash kitta kuduthom. Content quality super, posting schedule miss aagave illa. 3 months-la followers 4x aachu and weekend crowd clear ah increase aayiduchu. Reporting monthly varum, enna work nadandhuchu nu fully transparent.',
+    text: 'Buying houses abroad check the certifications before they even reply to a mail. Everything they ask for is on one page now, so the first conversation starts much further ahead.',
     avatar: null,
   },
   {
-    name: 'Vignesh Kumar',
-    role: 'Proprietor',
-    business: 'VK Interiors',
+    name: 'Manoj Kumar',
+    role: 'Marketing Lead',
+    business: 'Cornext',
     rating: 5,
-    text: 'Logo, visiting card, website — ellaam oru person kitta irundhu vandhadhaala brand look consistent ah irukku. Budget ku ulla ye mudichu kuduthaanga, deadline-um miss pannala. Reasonable price, quality work. Highly recommend.',
+    text: 'Two very different audiences on one site: farmers buying machinery, and people who want to join the network. Rendum separate-a work aagudhu, aana brand onnu maari dhaan theriyudhu. That was the hard part and he got it right.',
+    avatar: null,
+  },
+  {
+    name: 'Vignesh R',
+    role: 'Owner',
+    business: 'Qore Club',
+    rating: 4,
+    text: 'The plans are on the page with the price, so people walk in already knowing what they want. Join panradhu romba easy aayiduchu. Oru chinna change kekka konjam wait panna vendi irundhuchu, but the result is good.',
+    avatar: null,
+  },
+  {
+    name: 'Karthik Subramanian',
+    role: 'Partner',
+    business: 'AK Legal Associates',
+    rating: 4.5,
+    text: 'For a law practice the site has to look serious before anything else. This one does. Clients tell us they read the practice areas first and then call, which saves a lot of explaining.',
+    avatar: null,
+  },
+  {
+    name: 'Prakash S',
+    role: 'Sales Head',
+    business: 'Vedha Buildtech Solutions',
+    rating: 3.5,
+    text: 'Customers want to see finished work and the brochure before they talk price. Both are one tap away now. We were slow sending the product photos so the launch slipped by a week, but the enquiry rate since then has been good.',
     avatar: null,
   },
 ]

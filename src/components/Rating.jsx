@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { StarIcon } from './Icon'
 
-/** Star row. `value` may be fractional (e.g. 4.7) — the last star part-fills. */
+/** Star row. `value` may be fractional (e.g. 4.7), the last star part-fills. */
 export function Stars({ value = 5, size = 15, className = '', label }) {
   const stars = [1, 2, 3, 4, 5]
   return (

@@ -8,7 +8,6 @@ import useReducedMotion from '../hooks/useReducedMotion'
 import { useIsTouch } from '../hooks/useMediaQuery'
 import { scrollToId } from '../lib/smoothScroll'
 import site, { whatsappLink } from '../data/site'
-import projects from '../data/projects'
 import { useApp } from '../context/AppContext'
 
 const HERO_WA_MESSAGE = 'Hi Akash, I found your website and want to connect.'
@@ -24,7 +23,7 @@ const BADGE_POS = {
 /**
  * Hero photo: a true transparent-background cut-out, so it can sit on top of
  * the rings and glows with no box around it. Desktop gets the wide composite,
- * mobile an art-directed portrait crop — one <picture>, one download.
+ * mobile an art-directed portrait crop, one <picture>, one download.
  */
 function HeroPhoto({ glow = false, onFail, onReady }) {
   const { hero, portrait } = site.images
@@ -68,7 +67,7 @@ export default function Hero() {
   const textScrollY = useTransform(scrollYProgress, [0, 1], [0, reduced ? 0 : 150])
   const heroFade = useTransform(scrollYProgress, [0, 0.85], [1, reduced ? 1 : 0.1])
 
-  /* Mouse parallax (desktop only) — the figure and the light stage drift by
+  /* Mouse parallax (desktop only), the figure and the light stage drift by
      different amounts, and in opposite directions. That split is what sells
      the depth; a single uniform shift just looks like a sliding image. */
   const mx = useMotionValue(0)
@@ -144,7 +143,7 @@ export default function Hero() {
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-blue-glow opacity-75" />
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-blue-glow" />
                 </span>
-                Available for new projects
+                Websites, SEO and ads under one roof
               </span>
             </motion.div>
 
@@ -161,7 +160,7 @@ export default function Hero() {
               initial={{ opacity: 0, y: 18 }}
               animate={loaded ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8, delay: 0.62 }}
-              className="mt-6 max-w-xl text-[15px] leading-relaxed text-muted sm:text-lg"
+              className="mt-6 max-w-xl text-[15px] leading-relaxed text-white/90 sm:text-lg"
             >
               {site.intro}
             </motion.p>
@@ -195,11 +194,11 @@ export default function Hero() {
             >
               <span className="inline-flex items-center gap-2">
                 <Icon name="check" size={15} className="text-blue-glow" />
-                <span className="text-white">{projects.length}+</span> projects delivered
+                <span className="text-white">120+</span> projects delivered
               </span>
               <span className="inline-flex items-center gap-2">
                 <Icon name="pin" size={15} className="text-blue-glow" />
-                {site.location}
+                Coimbatore based, working anywhere
               </span>
             </motion.div>
           </motion.div>

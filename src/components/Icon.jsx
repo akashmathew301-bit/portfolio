@@ -1,4 +1,4 @@
-/* Hand-written stroke icons — no icon library, no extra bytes. */
+/* Hand-written stroke icons, no icon library, no extra bytes. */
 
 const PATHS = {
   code: (
@@ -14,6 +14,12 @@ const PATHS = {
       <path d="M3 12a9 9 0 0 1 15.3-6.4L21 8" />
       <path d="M21 4v4h-4" />
       <path d="M3 20v-4h4" />
+    </>
+  ),
+  clock: (
+    <>
+      <circle cx="12" cy="12" r="8.6" />
+      <path d="M12 7.3V12l3.2 2" />
     </>
   ),
   cart: (
@@ -159,6 +165,53 @@ const PATHS = {
     <>
       <path d="M12 21s7-6 7-11a7 7 0 1 0-14 0c0 5 7 11 7 11Z" />
       <circle cx="12" cy="10" r="2.6" />
+    </>
+  ),
+  /* industry marks */
+  stethoscope: (
+    <>
+      <path d="M6 3v5a4.5 4.5 0 0 0 9 0V3" />
+      <path d="M6 3H4.3M15 3h1.7" />
+      <path d="M10.5 12.5v2.2a4.8 4.8 0 0 0 9.5 0v-1.4" />
+      <circle cx="20" cy="11.4" r="1.9" />
+    </>
+  ),
+  factory: (
+    <>
+      <path d="M3 20h18" />
+      <path d="M3 20V10l5 3.2V10l5 3.2V10l5 3.2V20" />
+      <path d="M18 10V5.5h2.6V10" />
+    </>
+  ),
+  leaf: (
+    <>
+      <path d="M20 4c0 8.5-4.6 12.8-10.4 12.8A5.6 5.6 0 0 1 4 11.2C4 6.4 9.5 4 20 4Z" />
+      <path d="M15.5 8.5 4.5 19.5" />
+    </>
+  ),
+  scales: (
+    <>
+      <path d="M12 4v16M7.5 20h9" />
+      <path d="M4.5 7.5h15" />
+      <path d="M4.5 7.5 2 13.5h5l-2.5-6ZM19.5 7.5 17 13.5h5l-2.5-6Z" />
+    </>
+  ),
+  dumbbell: (
+    <>
+      <path d="M3 10v4M6.5 7.5v9M17.5 7.5v9M21 10v4" />
+      <path d="M6.5 12h11" />
+    </>
+  ),
+  bag: (
+    <>
+      <path d="M4.5 7.5h15L18.5 20h-13L4.5 7.5Z" />
+      <path d="M9 10V6.5a3 3 0 0 1 6 0V10" />
+    </>
+  ),
+  ticket: (
+    <>
+      <path d="M3 8.5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v1.3a2.2 2.2 0 0 0 0 4.4v1.3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1.3a2.2 2.2 0 0 0 0-4.4V8.5Z" />
+      <path d="M14 7v2.2M14 14.8V17" />
     </>
   ),
   spark: (

@@ -5,11 +5,11 @@ import SectionHeading from '../components/SectionHeading'
 import Reveal, { RevealGroup, RevealItem } from '../components/Reveal'
 import Select from '../components/Select'
 import { useApp } from '../context/AppContext'
-import { serviceOptions } from '../data/services'
+import { OTHER_SERVICE, serviceOptions } from '../data/services'
 import site, { whatsappLink } from '../data/site'
-import { buildEnquiryUrl, formatPhone, normalisePhone } from '../lib/whatsapp'
+import { buildEnquiryMessage, buildEnquiryUrl, formatPhone, normalisePhone } from '../lib/whatsapp'
 
-const EMPTY = { name: '', phone: '', service: '', message: '' }
+const EMPTY = { name: '', phone: '', service: '', serviceOther: '', message: '' }
 
 function validate(values) {
   const errors = {}
@@ -17,20 +17,29 @@ function validate(values) {
   else if (values.name.trim().length < 2) errors.name = 'That looks a little short.'
 
   if (!values.phone.trim()) errors.phone = 'I need a number to call you back on.'
+  else if (values.phone.length < 10) errors.phone = 'That is only ' + values.phone.length + ' digits, I need 10.'
   else if (!normalisePhone(values.phone))
-    errors.phone = 'Enter a valid 10-digit Indian mobile number (+91 is fine).'
+    errors.phone = 'Indian mobile numbers start with 6, 7, 8 or 9.'
 
   if (!values.service) errors.service = 'Pick the service you need.'
+  else if (values.service === OTHER_SERVICE && !values.serviceOther.trim())
+    errors.serviceOther = 'Tell me in a few words what you need.'
 
   return errors
 }
 
+/** What goes out on WhatsApp: the picked service, or whatever was typed. */
+function serviceOf(values) {
+  return values.service === OTHER_SERVICE ? values.serviceOther.trim() : values.service
+}
+
 /* ---------------------------------------------------------------- field */
-function Field({ id, label, error, children, hint, optional }) {
+function Field({ id, label, error, children, hint, optional, n }) {
   return (
     <div className="relative">
       <div className="mb-2 flex items-baseline justify-between gap-3">
-        <label htmlFor={id} className="text-[13px] font-medium text-white/90">
+        <label htmlFor={id} className="flex items-baseline gap-2.5 text-[13px] font-medium text-white/90">
+          {n && <span className="font-mono text-[11px] tabular-nums text-blue-glow/55">{n}</span>}
           {label}
           {optional && <span className="ml-1.5 text-[11px] font-normal text-muted">optional</span>}
         </label>
@@ -59,6 +68,108 @@ function Field({ id, label, error, children, hint, optional }) {
 
 const inputBase =
   'w-full rounded-2xl border bg-white/[0.03] px-4 py-3.5 text-[15px] text-white placeholder:text-muted/60 outline-none transition-all duration-400 ease-premium focus:bg-white/[0.055]'
+
+/* ------------------------------------------------------- brief score */
+/* A Lighthouse-style ring. It is the one metric this audience already reads,
+   and here it scores the brief instead of a page: the fuller the brief, the
+   faster I can quote. */
+function ScoreRing({ score }) {
+  const R = 17
+  const C = 2 * Math.PI * R
+  return (
+    <span className="relative flex h-[46px] w-[46px] shrink-0 items-center justify-center">
+      <svg viewBox="0 0 46 46" width="46" height="46" className="-rotate-90">
+        <circle cx="23" cy="23" r={R} fill="none" stroke="rgba(255,255,255,0.09)" strokeWidth="3" />
+        <circle
+          cx="23"
+          cy="23"
+          r={R}
+          fill="none"
+          stroke="url(#score-grad)"
+          strokeWidth="3"
+          strokeLinecap="round"
+          strokeDasharray={C}
+          strokeDashoffset={C - (C * score) / 100}
+          style={{ transition: 'stroke-dashoffset 700ms cubic-bezier(0.22,1,0.36,1)' }}
+        />
+        <defs>
+          <linearGradient id="score-grad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#2D9CFF" />
+            <stop offset="100%" stopColor="#0A6CFF" />
+          </linearGradient>
+        </defs>
+      </svg>
+      <span className="absolute font-mono text-[12px] font-semibold tabular-nums text-white">{score}</span>
+    </span>
+  )
+}
+
+/* Editor chrome. The form is a file you are filling in, which is exactly what
+   it is: a brief. */
+function BriefChrome({ score }) {
+  return (
+    <div className="relative mb-6 flex items-center gap-3 border-b border-white/[0.07] pb-4">
+      <span aria-hidden="true" className="flex items-center gap-1.5">
+        <span className="h-2.5 w-2.5 rounded-full bg-[#FF5F57]/70" />
+        <span className="h-2.5 w-2.5 rounded-full bg-[#FEBC2E]/70" />
+        <span className="h-2.5 w-2.5 rounded-full bg-[#28C840]/70" />
+      </span>
+      <span className="min-w-0 flex-1 truncate font-mono text-[12px] text-muted">
+        <span className="text-white/80">project-brief</span>.md
+      </span>
+      <span className="hidden text-right text-[10.5px] uppercase tracking-[0.16em] text-muted sm:block">
+        Brief score
+      </span>
+      <ScoreRing score={score} />
+    </div>
+  )
+}
+
+/* ----------------------------------------------------- live preview */
+/* Everything typed on the left is assembled here, exactly as WhatsApp will
+   receive it. Nothing is sent until the button is pressed. */
+function LivePreview({ values, ready }) {
+  const text = buildEnquiryMessage({
+    name: values.name.trim() || '…',
+    phone: formatPhone(normalisePhone(values.phone)) || '…',
+    service: serviceOf(values) || '…',
+    message: values.message,
+  })
+
+  return (
+    <div className="glass relative overflow-hidden rounded-2xl p-4 sm:p-5">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-12 -top-12 h-36 w-36 rounded-full bg-[radial-gradient(circle,rgba(37,211,102,0.22),transparent_70%)] blur-2xl"
+      />
+      <div className="relative flex items-center gap-2.5">
+        <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[linear-gradient(145deg,#2BE673,#128C4B)]">
+          <Icon name="whatsapp" size={15} className="text-white" />
+        </span>
+        <span className="flex-1 text-[11px] uppercase tracking-[0.16em] text-muted">Live preview</span>
+        <span
+          className={`flex items-center gap-1.5 text-[11px] transition-colors duration-500 ${
+            ready ? 'text-[#2BE673]' : 'text-muted'
+          }`}
+        >
+          <span
+            className={`h-1.5 w-1.5 rounded-full transition-colors duration-500 ${
+              ready ? 'bg-[#2BE673]' : 'bg-white/25'
+            }`}
+          />
+          {ready ? 'Ready to send' : 'Waiting'}
+        </span>
+      </div>
+
+      <div className="relative mt-4 rounded-2xl rounded-tl-md border border-white/[0.07] bg-[#0d1b14]/70 p-3.5">
+        <pre className="whitespace-pre-wrap break-words font-sans text-[12.5px] leading-[1.65] text-white/80">
+          {text}
+        </pre>
+        <span className="mt-2 block text-right font-mono text-[10px] text-white/35">now</span>
+      </div>
+    </div>
+  )
+}
 
 /* --------------------------------------------------------------- cards */
 /* Each channel keeps its own brand colour: the icon chip is tinted with it and
@@ -128,6 +239,19 @@ export default function Contact() {
     if (status === 'sent') setStatus('idle')
   }
 
+  /* digits only, hard capped at 10: the field can never hold anything else,
+     so nothing has to be stripped later and the counter is always honest */
+  const setPhone = (e) => {
+    let d = e.target.value.replace(/\D/g, '')
+    // a pasted +91 / 0 prefix is dropped rather than eating the real number
+    if (d.length > 10 && d.startsWith('91')) d = d.slice(2)
+    if (d.length > 10 && d.startsWith('0')) d = d.slice(1)
+    const digits = d.slice(0, 10)
+    setValues((v) => ({ ...v, phone: digits }))
+    if (touched.phone) setErrors(validate({ ...values, phone: digits }))
+    if (status === 'sent') setStatus('idle')
+  }
+
   const blur = (key) => () => {
     setTouched((t) => ({ ...t, [key]: true }))
     setErrors(validate(values))
@@ -154,7 +278,7 @@ export default function Contact() {
     const url = buildEnquiryUrl({
       name: values.name.trim(),
       phone: formatPhone(normalisePhone(values.phone)),
-      service: values.service,
+      service: serviceOf(values),
       message: values.message,
     })
     setLastUrl(url)
@@ -173,6 +297,19 @@ export default function Contact() {
     setStatus('idle')
     setSelectedService('')
   }
+
+  /* brief completeness, the three required answers carry it, the message tops
+     it off. Deliberately never 100 until something useful is written. */
+  const score = (() => {
+    let n = 0
+    if (values.name.trim().length > 1) n += 30
+    if (normalisePhone(values.phone)) n += 30
+    if (values.service && (values.service !== OTHER_SERVICE || values.serviceOther.trim())) n += 25
+    if (values.message.trim().length > 12) n += 15
+    else if (values.message.trim()) n += 7
+    return n
+  })()
+  const ready = Object.keys(validate(values)).length === 0
 
   const contactCards = [
     {
@@ -230,10 +367,10 @@ export default function Contact() {
             'Tell me what you need.',
             { text: 'I will reply on WhatsApp.', node: <span className="text-grad">I will reply on WhatsApp.</span> },
           ]}
-          lead="Fill this in and it opens WhatsApp with your details already typed out. No forms sitting in an inbox, no waiting."
+          lead="Four answers and your enquiry opens in WhatsApp, already typed. Nothing sits in an inbox waiting for someone to notice it."
         />
 
-        <div className="mt-12 grid gap-5 lg:mt-16 lg:grid-cols-12 lg:gap-6">
+        <div className="mt-9 grid gap-5 lg:mt-11 lg:grid-cols-12 lg:gap-6">
           {/* ------------------------------- form ------------------------------- */}
           <Reveal y={30} className="lg:col-span-7">
             <div className="grad-border relative rounded-3xl">
@@ -242,6 +379,8 @@ export default function Contact() {
                   aria-hidden="true"
                   className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-[radial-gradient(circle,rgba(10,108,255,0.22),transparent_70%)] blur-2xl"
                 />
+
+                {status !== 'sent' && <BriefChrome score={score} />}
 
                 <AnimatePresence mode="wait">
                   {status === 'sent' ? (
@@ -288,8 +427,8 @@ export default function Contact() {
                       <h3 className="mt-7 font-display text-2xl font-semibold tracking-tight sm:text-3xl">
                         WhatsApp is opening
                       </h3>
-                      <p className="mt-3 max-w-sm text-sm leading-relaxed text-muted">
-                        Your enquiry is pre-typed in the chat — just press send. I usually reply within
+                      <p className="mt-3 max-w-sm text-sm leading-relaxed text-white/90">
+                        Your enquiry is pre-typed in the chat, just press send. I usually reply within
                         a few hours.
                       </p>
 
@@ -323,7 +462,7 @@ export default function Contact() {
                       exit={{ opacity: 0 }}
                       className="relative space-y-5"
                     >
-                      <Field id="field-name" label="Your name" error={touched.name ? errors.name : ''}>
+                      <Field id="field-name" n="01" label="Your name" error={touched.name ? errors.name : ''}>
                         <input
                           id="field-name"
                           name="name"
@@ -346,34 +485,57 @@ export default function Contact() {
 
                       <Field
                         id="field-phone"
+                        n="02"
                         label="Phone number"
-                        hint="+91 or 10 digits"
+                        hint="10 digits, no +91"
                         error={touched.phone ? errors.phone : ''}
                       >
-                        <input
-                          id="field-phone"
-                          name="phone"
-                          type="tel"
-                          inputMode="tel"
-                          autoComplete="tel"
-                          placeholder="90479 50974"
-                          value={values.phone}
-                          onChange={set('phone')}
-                          onBlur={blur('phone')}
-                          aria-invalid={Boolean(touched.phone && errors.phone)}
-                          aria-describedby={touched.phone && errors.phone ? 'field-phone-error' : undefined}
-                          className={
-                            inputBase +
-                            (touched.phone && errors.phone
-                              ? ' border-[#FF8080]/50 focus:border-[#FF8080]'
-                              : ' border-white/10 focus:border-blue-main/70 focus:shadow-glow')
-                          }
-                        />
+                        <div className="relative">
+                          <span
+                            aria-hidden="true"
+                            className="pointer-events-none absolute left-4 top-1/2 flex -translate-y-1/2 items-center gap-2 text-[15px] text-white/90"
+                          >
+                            +91
+                            <span className="h-4 w-px bg-white/15" />
+                          </span>
+                          <input
+                            id="field-phone"
+                            name="phone"
+                            type="tel"
+                            inputMode="numeric"
+                            autoComplete="tel-national"
+                            pattern="[6-9][0-9]{9}"
+                            placeholder="90479 50974"
+                            value={values.phone}
+                            onChange={setPhone}
+                            onBlur={blur('phone')}
+                            aria-invalid={Boolean(touched.phone && errors.phone)}
+                            aria-describedby={touched.phone && errors.phone ? 'field-phone-error' : undefined}
+                            className={
+                              inputBase +
+                              ' pl-[4.6rem] tracking-[0.04em]' +
+                              (touched.phone && errors.phone
+                                ? ' border-[#FF8080]/50 focus:border-[#FF8080]'
+                                : ' border-white/10 focus:border-blue-main/70 focus:shadow-glow')
+                            }
+                          />
+                          <span
+                            className={`pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 font-mono text-[11px] tabular-nums transition-colors duration-300 ${
+                              values.phone.length === 10 ? 'text-[#2BE673]' : 'text-muted/70'
+                            }`}
+                          >
+                            {values.phone.length}/10
+                          </span>
+                        </div>
                       </Field>
 
-                      {/* service — custom dropdown (styled, keyboard accessible) */}
+                      {/* service, custom dropdown (styled, keyboard accessible) */}
                       <div ref={serviceRef} className="rounded-2xl transition-shadow duration-500">
-                        <label htmlFor="field-service" className="mb-2 block text-[13px] font-medium text-white/90">
+                        <label
+                          htmlFor="field-service"
+                          className="mb-2 flex items-baseline gap-2.5 text-[13px] font-medium text-white/90"
+                        >
+                          <span className="font-mono text-[11px] tabular-nums text-blue-glow/55">03</span>
                           What do you need?
                         </label>
                         <Select
@@ -389,6 +551,55 @@ export default function Contact() {
                         />
 
                         <AnimatePresence>
+                          {values.service === OTHER_SERVICE && (
+                            <motion.div
+                              key="other"
+                              initial={{ opacity: 0, height: 0 }}
+                              animate={{ opacity: 1, height: 'auto' }}
+                              exit={{ opacity: 0, height: 0 }}
+                              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                              className="overflow-hidden"
+                            >
+                              <div className="pt-3">
+                                <label
+                                  htmlFor="field-serviceOther"
+                                  className="mb-2 flex items-baseline gap-2.5 text-[13px] font-medium text-white/90"
+                                >
+                                  <span className="font-mono text-[11px] tabular-nums text-blue-glow/55">
+                                    03b
+                                  </span>
+                                  What do you need instead?
+                                </label>
+                                <input
+                                  id="field-serviceOther"
+                                  name="serviceOther"
+                                  type="text"
+                                  autoComplete="off"
+                                  placeholder="e.g. Google Business profile setup"
+                                  value={values.serviceOther}
+                                  onChange={set('serviceOther')}
+                                  onBlur={blur('serviceOther')}
+                                  aria-invalid={Boolean(touched.serviceOther && errors.serviceOther)}
+                                  className={
+                                    inputBase +
+                                    (touched.serviceOther && errors.serviceOther
+                                      ? ' border-[#FF8080]/50 focus:border-[#FF8080]'
+                                      : ' border-white/10 focus:border-blue-main/70 focus:shadow-glow')
+                                  }
+                                />
+                                {touched.serviceOther && errors.serviceOther && (
+                                  <p
+                                    role="alert"
+                                    className="mt-1.5 flex items-center gap-1.5 text-[12.5px] text-[#FF8080]"
+                                  >
+                                    <Icon name="close" size={13} />
+                                    {errors.serviceOther}
+                                  </p>
+                                )}
+                              </div>
+                            </motion.div>
+                          )}
+
                           {touched.service && errors.service && (
                             <motion.p
                               id="field-service-error"
@@ -405,23 +616,24 @@ export default function Contact() {
                         </AnimatePresence>
                       </div>
 
-                      <Field id="field-message" label="Message" optional>
+                      <Field id="field-message" n="04" label="Message" optional>
                         <textarea
                           id="field-message"
                           name="message"
                           rows={4}
-                          placeholder="Anything useful — your business, a deadline, a reference site…"
+                          placeholder="Anything useful: your business, a deadline, a reference site…"
                           value={values.message}
                           onChange={set('message')}
                           className={inputBase + ' resize-y border-white/10 focus:border-blue-main/70 focus:shadow-glow'}
                         />
                       </Field>
 
+                      <span className="shimmer-wrap mt-1 block w-full">
                       <button
                         type="submit"
                         disabled={status === 'sending'}
                         data-cursor="hover"
-                        className="group relative mt-1 flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-full bg-blue-grad px-7 py-4 text-[15px] font-medium text-white shadow-glow transition-all duration-500 ease-premium hover:shadow-glow-lg disabled:cursor-wait disabled:opacity-80"
+                        className="group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-full bg-blue-grad px-7 py-4 text-[15px] font-medium text-white shadow-glow transition-all duration-500 ease-premium hover:shadow-glow-lg disabled:cursor-wait disabled:opacity-80"
                       >
                         <span
                           aria-hidden="true"
@@ -445,10 +657,11 @@ export default function Contact() {
                           )}
                         </span>
                       </button>
+                      </span>
 
                       <p className="text-center text-[12px] leading-relaxed text-muted">
-                        No backend, no spam list. Pressing send simply opens WhatsApp with your details
-                        ready to go.
+                        No database, no mailing list. Send just opens WhatsApp with your details ready
+                        to go, and you can edit the message before it leaves.
                       </p>
                     </motion.form>
                   )}
@@ -459,6 +672,10 @@ export default function Contact() {
 
           {/* --------------------------- direct contact --------------------------- */}
           <div className="lg:col-span-5">
+            <Reveal y={30} className="mb-3">
+              <LivePreview values={values} ready={ready} />
+            </Reveal>
+
             <RevealGroup className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1" stagger={0.08}>
               {contactCards.map((card) => (
                 <RevealItem key={card.label} className="min-w-0">
@@ -466,25 +683,6 @@ export default function Contact() {
                 </RevealItem>
               ))}
             </RevealGroup>
-
-            <Reveal delay={0.2} className="mt-3">
-              <div className="glass relative overflow-hidden rounded-2xl p-5">
-                <div
-                  aria-hidden="true"
-                  className="pointer-events-none absolute -bottom-10 -left-8 h-40 w-40 rounded-full bg-[radial-gradient(circle,rgba(0,75,147,0.35),transparent_70%)] blur-2xl"
-                />
-                <div className="relative flex items-start gap-3">
-                  <Icon name="pin" size={19} className="mt-0.5 shrink-0 text-blue-glow" />
-                  <div>
-                    <p className="font-display text-base font-semibold text-white">{site.location}</p>
-                    <p className="mt-1 text-[13px] leading-relaxed text-muted">
-                      Working with businesses across Tamil Nadu and remotely all over India. Typical
-                      reply time: a few hours.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </Reveal>
           </div>
         </div>
       </div>

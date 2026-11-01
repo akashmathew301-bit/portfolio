@@ -7,7 +7,7 @@ export const services = [
     title: 'Website Development',
     icon: 'code',
     description:
-      'Fast, responsive, SEO-ready websites built from scratch — business sites, landing pages and portfolios that load quick and convert.',
+      'A site built for the enquiry, not the applause. It loads fast on a 4G phone, says what you do in five seconds, and puts the call button where the thumb already is.',
     points: ['Custom design', 'Mobile-first build', 'Speed optimised'],
   },
   {
@@ -15,7 +15,7 @@ export const services = [
     title: 'Website Revamp',
     icon: 'refresh',
     description:
-      'Your site works, but it looks dated and nobody enquires. I rebuild the design, structure and speed without losing your rankings.',
+      'The site works, it just looks like 2016 and nobody enquires. I rebuild the design, the structure and the speed without losing the rankings you already have.',
     points: ['Modern redesign', 'Content restructure', 'Core Web Vitals fix'],
   },
   {
@@ -23,7 +23,7 @@ export const services = [
     title: 'E-commerce',
     icon: 'cart',
     description:
-      'Online stores with clean product pages, secure payments and a checkout that does not lose customers halfway.',
+      'A store your customer can actually finish buying from. Clean product pages, payments that do not fail, and a checkout that does not lose people at step three.',
     points: ['Payment gateway', 'Inventory ready', 'Order flow'],
   },
   {
@@ -31,7 +31,7 @@ export const services = [
     title: 'SEO',
     icon: 'search',
     description:
-      'On-page, technical and local SEO so the right customers in your city find you on Google instead of your competitor.',
+      'When someone in your city searches for what you sell, you should be the first name they see. On-page, technical and local SEO to get you there and keep you there.',
     points: ['Keyword strategy', 'Google Business', 'Technical audit'],
   },
   {
@@ -39,7 +39,7 @@ export const services = [
     title: 'Digital Marketing',
     icon: 'megaphone',
     description:
-      'Meta and Google campaigns built around real leads — targeting, creatives and tracking, not vanity impressions.',
+      'Meta and Google ads judged on one number: what a real enquiry cost you. Targeting, creatives and tracking, never vanity impressions.',
     points: ['Paid ads', 'Lead funnels', 'Performance tracking'],
   },
   {
@@ -47,7 +47,7 @@ export const services = [
     title: 'Logo Design',
     icon: 'palette',
     description:
-      'A mark your business can own — logo, colours, typography and a mini brand kit that works on signage and screens.',
+      'A mark that still reads on a shop board and at thumbnail size. Logo, colours, type and a small brand kit that belongs to you, not to a template.',
     points: ['Concept rounds', 'Brand kit', 'All file formats'],
   },
   {
@@ -55,7 +55,7 @@ export const services = [
     title: 'Video Editing',
     icon: 'film',
     description:
-      'Reels, ads and promos cut for attention — hooks, captions, motion graphics and sound that stop the scroll.',
+      'Reels and ads cut for the first three seconds, because that is all you get. Hooks, captions, motion and sound that stop the thumb.',
     points: ['Reels & shorts', 'Ad creatives', 'Motion graphics'],
   },
   {
@@ -63,17 +63,20 @@ export const services = [
     title: 'Social Media Management',
     icon: 'share',
     description:
-      'Consistent content, a calendar you can trust and a profile that actually looks like a business worth buying from.',
+      'A profile that looks like a business worth buying from. A calendar you can trust, posts that actually go out, and the numbers at the end of every month.',
     points: ['Content calendar', 'Design + copy', 'Monthly reporting'],
   },
 ]
 
 /* The exact option list used by the contact form. Each option carries its
    service icon so the dropdown matches the cards above it. */
-export const serviceOptions = services.map((s) => ({
-  value: s.title,
-  label: s.title,
-  icon: s.icon,
-}))
+export const OTHER_SERVICE = 'Other'
+
+export const serviceOptions = [
+  ...services.map((s) => ({ value: s.title, label: s.title, icon: s.icon })),
+  /* escape hatch: picking this reveals a free-text field in the form, so an
+     enquiry that is not on the list never has to be forced into one */
+  { value: OTHER_SERVICE, label: 'Something else', icon: 'spark' },
+]
 
 export default services

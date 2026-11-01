@@ -93,7 +93,7 @@
   }
 
   .section-pad {
-    @apply py-20 sm:py-24 lg:py-32;
+    @apply py-14 sm:py-16 lg:py-20;
   }
 
   .glass {
@@ -120,10 +120,10 @@
   }
 
   .eyebrow {
-    @apply inline-flex items-center gap-2 overflow-hidden rounded-full border border-white/10 bg-white/[0.04] px-4 py-1.5 font-sans text-[11px] font-medium uppercase tracking-[0.18em] text-muted sm:text-xs;
+    @apply inline-flex items-center gap-2 overflow-hidden rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 font-sans text-[11.5px] font-medium uppercase tracking-[0.16em] text-muted sm:py-1.5 sm:text-xs sm:tracking-[0.18em];
   }
 
-  /* Permanently rotating gradient ring — used by the back-to-top button.
+  /* Permanently rotating gradient ring, used by the back-to-top button.
      The conic gradient spins inside a ring-shaped mask, so the glow appears
      to travel around the border. */
   .glow-ring::after {
@@ -150,6 +150,105 @@
     animation: spin-slow 3.2s linear infinite;
     pointer-events: none;
     z-index: 1;
+  }
+
+  /* Rotating shimmer border for the primary buttons. A conic sweep spins
+     behind the pill and only the 2.5px of padding around the face shows, so
+     the light appears to run round the edge. */
+  .shimmer-wrap {
+    position: relative;
+    display: inline-flex;
+    padding: 2.5px;
+    border-radius: 100px;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .shimmer-wrap::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 190%;
+    aspect-ratio: 1;
+    translate: -50% -50%;
+    background: conic-gradient(from 0deg, transparent, #ffffff 20%, transparent 40%);
+    animation: rotate-shimmer 3s linear infinite;
+    z-index: -1;
+  }
+  /* a dim base ring so the pill never looks bare between sweeps */
+  .shimmer-wrap::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: rgba(255, 255, 255, 0.14);
+    z-index: -2;
+  }
+  .shimmer-wrap > * {
+    border-radius: 100px;
+  }
+
+  /* Card-shaped cousin of .shimmer-wrap, for the offer dialog. */
+  .shimmer-card {
+    position: relative;
+    display: block;
+    padding: 1.5px;
+    border-radius: 28px;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .shimmer-card::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 180%;
+    aspect-ratio: 1;
+    translate: -50% -50%;
+    background: conic-gradient(from 0deg, transparent, rgba(255, 255, 255, 0.95) 14%, rgba(45, 156, 255, 0.9) 22%, transparent 36%);
+    animation: rotate-shimmer 6s linear infinite;
+    z-index: -1;
+  }
+  .shimmer-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: rgba(255, 255, 255, 0.1);
+    z-index: -2;
+  }
+
+  /* 2px border with a light segment that travels anti-clockwise forever.
+     The angle itself is animated (see @property --ring-angle) instead of
+     rotating a box, so it stays correct on wide pill shapes. */
+  .spin-ring {
+    position: relative;
+    isolation: isolate;
+  }
+  .spin-ring::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 2px;
+    background: conic-gradient(
+      from var(--ring-angle, 0deg),
+      transparent 0deg,
+      transparent 186deg,
+      rgba(45, 156, 255, 0.5) 232deg,
+      rgba(124, 196, 255, 0.95) 286deg,
+      rgba(45, 156, 255, 0.5) 330deg,
+      transparent 360deg
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: ring-ccw var(--ring-speed, 6s) linear infinite;
+    animation-delay: var(--ring-delay, 0s);
+    pointer-events: none;
+    z-index: 2;
   }
 
   /* Animated gradient border wrapper */
@@ -221,6 +320,25 @@
     background-size: 72px 72px;
   }
 
+  /* slim scrollbar, used where the list must LOOK scrollable */
+  .thin-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(45, 156, 255, 0.5) transparent;
+  }
+  .thin-scroll::-webkit-scrollbar {
+    width: 6px;
+  }
+  .thin-scroll::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .thin-scroll::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, rgba(45, 156, 255, 0.85), rgba(10, 108, 255, 0.6));
+    border-radius: 999px;
+  }
+  .thin-scroll::-webkit-scrollbar-thumb:hover {
+    background: rgba(45, 156, 255, 0.95);
+  }
+
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
@@ -253,6 +371,194 @@
   }
   50% {
     transform: translate3d(0, -12px, 0);
+  }
+}
+
+/* Registered so the conic gradient's start angle can be animated. */
+@property --ring-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@keyframes ring-ccw {
+  to {
+    --ring-angle: -360deg;
+  }
+}
+
+@keyframes rotate-shimmer {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* The offer popup's wireframe assembles, holds, then clears and rebuilds. */
+/* Slow aurora drift behind the offer dialog. Two of these on opposite
+   timings keep the blue moving without anything ever looking like it loops. */
+@keyframes aurora {
+  0%,
+  100% {
+    transform: translate3d(-10%, -8%, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(10%, 8%, 0) scale(1.25);
+  }
+}
+
+/* ------------------------------------------------------------------
+   OFFER STORY
+   Every keyframe below runs on the same 9s clock, so the beats line up:
+   the page builds, a cursor arrives and clicks, an enquiry lands.
+   ------------------------------------------------------------------ */
+@keyframes mini-in {
+  0%,
+  3% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  11%,
+  93% {
+    opacity: 1;
+    transform: none;
+  }
+  99%,
+  100% {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.99);
+  }
+}
+
+@keyframes cursor-trip {
+  0%,
+  28% {
+    opacity: 0;
+    transform: translate3d(54px, 46px, 0) scale(1);
+  }
+  34% {
+    opacity: 1;
+    transform: translate3d(20px, 18px, 0) scale(1);
+  }
+  45% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  49% {
+    transform: translate3d(0, 0, 0) scale(0.78);
+  }
+  53% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  66% {
+    opacity: 1;
+  }
+  72%,
+  100% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes click-ripple {
+  0%,
+  47% {
+    opacity: 0;
+    transform: scale(0.35);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(0.5);
+  }
+  68%,
+  100% {
+    opacity: 0;
+    transform: scale(2.4);
+  }
+}
+
+@keyframes notif-pop {
+  0%,
+  55% {
+    opacity: 0;
+    transform: translateY(16px) scale(0.95);
+  }
+  61%,
+  90% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  97%,
+  100% {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.98);
+  }
+}
+
+@keyframes block-in {
+  0%,
+  6% {
+    opacity: 0;
+    transform: translateY(10px) scaleX(0.55);
+  }
+  16%,
+  88% {
+    opacity: 1;
+    transform: none;
+  }
+  97%,
+  100% {
+    opacity: 0;
+    transform: translateY(-6px) scaleX(0.9);
+  }
+}
+
+@keyframes caret-blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes dot-rise {
+  0% {
+    transform: translate3d(0, 0, 0) scale(0.75);
+    opacity: 0;
+  }
+  12% {
+    opacity: var(--dot-opacity, 0.7);
+  }
+  82% {
+    opacity: var(--dot-opacity, 0.7);
+  }
+  100% {
+    transform: translate3d(var(--dot-drift, 18px), calc(-1 * var(--dot-rise, 115vh)), 0) scale(1.2);
+    opacity: 0;
+  }
+}
+
+@keyframes float-soft {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(0, -7px, 0) scale(1.035);
+  }
+}
+
+@keyframes orbit-cw {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes orbit-ccw {
+  to {
+    transform: rotate(-360deg);
   }
 }
 
@@ -343,6 +649,47 @@
 .animate-float {
   animation: float-y 6s ease-in-out infinite;
 }
+.animate-aurora {
+  animation: aurora 14s ease-in-out infinite;
+}
+.animate-mini {
+  animation: mini-in 9s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+.animate-cursor {
+  animation: cursor-trip 9s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+.animate-ripple {
+  animation: click-ripple 9s ease-out infinite;
+}
+.animate-notif {
+  animation: notif-pop 9s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+.animate-block {
+  animation: block-in 6.5s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+  transform-origin: left center;
+}
+.animate-caret {
+  animation: caret-blink 1s steps(1) infinite;
+}
+.animate-dot {
+  animation-name: dot-rise;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  will-change: transform, opacity;
+}
+.animate-float-soft {
+  animation: float-soft 5.5s ease-in-out infinite;
+}
+.animate-orbit {
+  animation: orbit-cw var(--orbit-duration, 34s) linear infinite;
+}
+.animate-orbit-rev {
+  /* keeps a chip upright while its track rotates */
+  animation: orbit-ccw var(--orbit-duration, 34s) linear infinite;
+}
+.animate-orbit-inner {
+  animation: orbit-ccw var(--orbit-duration, 48s) linear infinite;
+}
 .animate-spin-slow {
   animation: spin-slow 24s linear infinite;
 }
@@ -376,7 +723,22 @@
   .animate-bob,
   .animate-wiggle,
   .animate-beam,
-  .glow-ring::after {
+  .glow-ring::after,
+  .spin-ring::before,
+  .animate-orbit,
+  .animate-orbit-rev,
+  .animate-orbit-inner,
+  .animate-float-soft,
+  .animate-dot,
+  .animate-block,
+  .animate-mini,
+  .animate-cursor,
+  .animate-ripple,
+  .animate-notif,
+  .animate-caret,
+  .shimmer-card::before,
+  .animate-aurora,
+  .shimmer-wrap::before {
     animation: none !important;
   }
 }

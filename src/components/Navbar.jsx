@@ -56,15 +56,18 @@ export default function Navbar() {
               }}
               data-cursor="hover"
               className="group flex items-center gap-2.5"
-              aria-label={site.brand + ' — back to top'}
+              aria-label={site.brand + ', back to top'}
             >
-              <span className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-blue-grad text-sm font-bold text-white shadow-glow-sm transition-transform duration-500 ease-premium group-hover:rotate-[-8deg] group-hover:scale-105">
-                A
-              </span>
-              <span className="font-display text-[17px] font-semibold tracking-tight">
-                {site.name}
-                <span className="text-grad">.</span>
-              </span>
+              <picture>
+                <source srcSet={site.images.mark.src} type="image/webp" />
+                <img
+                  src={site.images.mark.fallback}
+                  alt=""
+                  width={site.images.mark.width}
+                  height={site.images.mark.height}
+                  className="h-11 w-auto transition-transform duration-500 ease-premium group-hover:scale-105 sm:h-12"
+                />
+              </picture>
             </a>
 
             {/* Desktop links */}

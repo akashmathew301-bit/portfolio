@@ -1,42 +1,14 @@
 import { useRef, useState } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import Icon from '../components/Icon'
-import Reveal, { RevealGroup, RevealItem } from '../components/Reveal'
+import Reveal from '../components/Reveal'
 import ScrollWords from '../components/ScrollWords'
 import SectionHeading from '../components/SectionHeading'
 import MagneticButton from '../components/MagneticButton'
 import SocialLinks from '../components/SocialLinks'
-import useCountUp from '../hooks/useCountUp'
 import useReducedMotion from '../hooks/useReducedMotion'
 import { scrollToId } from '../lib/smoothScroll'
 import site from '../data/site'
-import projects from '../data/projects'
-
-const INDUSTRIES = [
-  'Healthcare & clinics',
-  'Manufacturing & export',
-  'Agri-tech',
-  'Legal',
-  'Fitness',
-  'Retail & boutiques',
-  'Events',
-  'Creative studios',
-]
-
-function Counter({ value, suffix, label }) {
-  const [ref, current] = useCountUp(value)
-  return (
-    <div ref={ref} className="grad-border relative h-full rounded-2xl">
-      <div className="glass flex h-full flex-col justify-between rounded-2xl p-4 sm:p-5">
-        <span className="font-display text-[clamp(1.9rem,5vw,2.9rem)] font-semibold leading-none tracking-tight text-white">
-          <span className="tabular-nums">{current}</span>
-          <span className="text-grad">{suffix}</span>
-        </span>
-        <span className="mt-2 block text-xs leading-snug text-muted sm:text-[13px]">{label}</span>
-      </div>
-    </div>
-  )
-}
 
 /**
  * Portrait stage: the keyed headshot stands inside a ring of light rather than
@@ -156,7 +128,7 @@ function PortraitStage() {
           style={{ animationDelay: '-2.6s' }}
         >
           <Icon name="layers" size={13} className="text-blue-glow" />
-          {projects.length}+ sites live
+          120+ projects delivered
         </span>
       </motion.div>
 
@@ -164,12 +136,21 @@ function PortraitStage() {
       <Reveal delay={0.2} y={18} className="relative z-10 -mt-1">
         <div className="glass-strong flex items-center justify-between gap-3 rounded-2xl px-4 py-3.5">
           <div className="flex min-w-0 items-center gap-3">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-grad font-display text-sm font-bold shadow-glow-sm">
-              A
-            </span>
+            <picture>
+              <source srcSet={site.images.mark.src} type="image/webp" />
+              <img
+                src={site.images.mark.fallback}
+                alt=""
+                width={site.images.mark.width}
+                height={site.images.mark.height}
+                loading="lazy"
+                decoding="async"
+                className="h-10 w-auto shrink-0"
+              />
+            </picture>
             <div className="min-w-0">
               <p className="truncate font-display text-[15px] font-semibold">Akash Mathew</p>
-              <p className="truncate text-[11.5px] text-muted">{site.role}</p>
+              <p className="text-[11.5px] leading-snug text-muted">{site.role}</p>
             </div>
           </div>
           <SocialLinks
@@ -187,7 +168,7 @@ export default function About() {
   return (
     <section id="about" className="section-pad relative z-10">
       <div className="container-x">
-        <div className="grid gap-14 lg:grid-cols-12 lg:gap-14">
+        <div className="grid gap-14 lg:grid-cols-12 lg:items-center lg:gap-14">
           {/* ---- portrait ---- */}
           <div className="lg:col-span-5">
             <PortraitStage />
@@ -211,48 +192,26 @@ export default function About() {
             />
 
             <ScrollWords
-              className="mt-6 max-w-2xl font-display text-[clamp(1.05rem,2.6vw,1.55rem)] font-medium leading-[1.55] tracking-tight text-white"
+              className="mt-6 max-w-2xl text-[15px] leading-relaxed text-white/90 sm:text-base"
               text={
-                'I am Akash. This started with one shop owner in Coimbatore who was quietly losing customers to a competitor with a better website. Five years and dozens of projects later, that is still the only thing I measure my work by — did it actually bring you business?'
+                'I am Akash. If your business needs a website, or something online is not working the way it should, that is what I solve. Where you are based does not matter. I judge every project by one question: did it bring you customers?'
               }
             />
 
-            <Reveal delay={0.1} className="mt-5 max-w-2xl space-y-4 text-[15px] leading-relaxed text-muted sm:text-base">
-              <p>
-                Since then I have sat with dentists in Siddhapudur, a Schiffli fabric mill in Tiruppur
-                shipping to buyers in France and Hong Kong, an agri-tech team putting silage machinery in
-                front of dairy farmers, advocates, gym owners, boutique founders and a two-person film
-                studio. Completely different worlds — but the conversation always starts the same way:
-                who is your customer, and what do you want them to do?
-              </p>
-              <p>
-                And you get me, directly. No account manager, no ticket number. I answer my own phone, I
-                send the updates myself, and when something breaks at 9pm I am the one who fixes it.
-                That is the honest reason most of my work still comes from people I built for years ago.
-              </p>
-            </Reveal>
-
-            <Reveal delay={0.18} className="mt-7">
-              <p className="text-[11px] uppercase tracking-[0.2em] text-muted/80">Industries I have built for</p>
-              <ul className="mt-3 flex flex-wrap gap-2">
-                {INDUSTRIES.map((item) => (
-                  <li
-                    key={item}
-                    className="rounded-full border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-[12.5px] text-white/75"
-                  >
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </Reveal>
-
-            <RevealGroup className="mt-9 grid grid-cols-2 items-stretch gap-3 sm:gap-4 lg:grid-cols-4" stagger={0.09}>
-              {site.stats.map((stat) => (
-                <RevealItem key={stat.label} className="h-full">
-                  <Counter {...stat} />
-                </RevealItem>
-              ))}
-            </RevealGroup>
+            <div className="mt-4 max-w-2xl space-y-4">
+              <ScrollWords
+                className="text-[15px] leading-relaxed text-white/90 sm:text-base"
+                text={
+                  'Clinics, gyms, factories, law firms, showrooms and studios. Different businesses, same starting point: who is your customer, and what should they do when they land on your site?'
+                }
+              />
+              <ScrollWords
+                className="text-[15px] leading-relaxed text-white/90 sm:text-base"
+                text={
+                  'You work with me directly. No account manager, no ticket number. I answer my own phone, send the updates myself, and stay reachable long after the site goes live.'
+                }
+              />
+            </div>
 
             <Reveal delay={0.15} className="mt-9 flex flex-wrap items-center gap-4">
               <MagneticButton variant="outline" icon="arrowRight" onClick={() => scrollToId('work', -40)}>

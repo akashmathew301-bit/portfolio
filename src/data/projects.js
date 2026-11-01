@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------
-   PROJECTS — real client work.
+   PROJECTS, real client work.
 
    Screenshots live in /public/images/work/ (WebP with a JPG fallback).
    To add a project: drop a screenshot in that folder, then copy one of
@@ -16,7 +16,7 @@ export const projects = [
     category: 'Agri-Tech Platform',
     year: '2025',
     blurb:
-      'India\'s largest silage ecosystem for dairy growth. A corporate site plus a "Fodderpreneur" recruitment funnel covering machinery, silage products and the 600-strong entrepreneur network.',
+      'India\'s largest silage ecosystem for dairy growth. One site doing two jobs: selling machinery and silage to farmers, and recruiting for the 600-strong "Fodderpreneur" network.',
     tags: ['Web Development', 'Lead Funnel', 'SEO'],
     image: '/images/work/cornext.webp',
     fallback: '/images/work/cornext.jpg',
@@ -38,7 +38,7 @@ export const projects = [
   },
   {
     id: 'inbuilt-tensile',
-    title: 'Inbuilt Infra — Tensile',
+    title: 'Inbuilt Infra Tensile',
     category: 'Lead Generation',
     year: '2025',
     blurb:
@@ -68,7 +68,7 @@ export const projects = [
     category: 'Clinic + Local SEO',
     year: '2025',
     blurb:
-      'Specialist-led dental clinic in Siddhapudur, Coimbatore. Appointment booking, clinic hours and a map landmark are all above the fold — the three things a patient actually looks for.',
+      'Specialist-led dental clinic in Siddhapudur, Coimbatore. Appointment booking, clinic hours and a map landmark are all above the fold, the three things a patient actually looks for.',
     tags: ['Web Development', 'Appointments', 'Local SEO'],
     image: '/images/work/nalan-dental.webp',
     fallback: '/images/work/nalan-dental.jpg',
@@ -81,7 +81,7 @@ export const projects = [
     category: 'Legal Practice',
     year: '2025',
     blurb:
-      'Law firm practising in the District and High Courts across Tiruppur and Coimbatore. Built to signal credibility fast — courtroom record, practice areas and a direct line to an advocate.',
+      'Law firm practising in the District and High Courts across Tiruppur and Coimbatore. Built to signal credibility fast: courtroom record, practice areas and a direct line to an advocate.',
     tags: ['Web Development', 'Trust Design', 'Consultation Flow'],
     image: '/images/work/blf-legal.webp',
     fallback: '/images/work/blf-legal.jpg',
@@ -107,7 +107,7 @@ export const projects = [
     category: 'Product Catalogue',
     year: '2025',
     blurb:
-      'Bengaluru manufacturer of uPVC and system aluminium windows and doors. Product range, project gallery and a brochure download, with enquiry and call buttons pinned to the header.',
+      'Bengaluru manufacturer of uPVC and system aluminium windows and doors. The buyer wants the range, finished projects and a brochure, so all three sit one tap away with the call button pinned to the header.',
     tags: ['Web Development', 'Catalogue', 'Enquiry Flow'],
     image: '/images/work/vedha-buildtech.webp',
     fallback: '/images/work/vedha-buildtech.jpg',

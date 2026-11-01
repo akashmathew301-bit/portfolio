@@ -8,8 +8,19 @@ gsap.registerPlugin(ScrollTrigger)
 /**
  * Word-by-word brightness reveal driven by scroll position (scrubbed).
  * The paragraph "lights up" as you scroll through it.
+ *
+ * `start`/`end` are exposed because a short lead line needs a tighter window
+ * than a long paragraph, otherwise the last words never reach full strength.
  */
-export default function ScrollWords({ text, className = '', wordClassName = '' }) {
+export default function ScrollWords({
+  text,
+  className = '',
+  wordClassName = '',
+  as: Tag = 'p',
+  start = 'top 85%',
+  end = 'bottom 60%',
+  dim = 0.2,
+}) {
   const ref = useRef(null)
   const reduced = useReducedMotion()
   const words = useMemo(() => text.split(' '), [text])
@@ -22,39 +33,34 @@ export default function ScrollWords({ text, className = '', wordClassName = '' }
     const ctx = gsap.context(() => {
       gsap.fromTo(
         el.querySelectorAll('[data-word]'),
-        { opacity: 0.18, filter: 'blur(0.4px)' },
+        { opacity: dim, filter: 'blur(0.4px)' },
         {
           opacity: 1,
           filter: 'blur(0px)',
           ease: 'none',
           stagger: 0.5,
-          scrollTrigger: {
-            trigger: el,
-            start: 'top 82%',
-            end: 'bottom 55%',
-            scrub: 0.6,
-          },
+          scrollTrigger: { trigger: el, start, end, scrub: 0.6 },
         },
       )
     }, el)
 
     return () => ctx.revert()
-  }, [reduced, text])
+  }, [reduced, text, start, end, dim])
 
   return (
-    <p ref={ref} className={className}>
+    <Tag ref={ref} className={className}>
       {words.map((w, i) => (
         <Fragment key={i}>
           <span
             data-word
             className={`inline-block ${wordClassName}`}
-            style={reduced ? undefined : { opacity: 0.18 }}
+            style={reduced ? undefined : { opacity: dim }}
           >
             {w}
           </span>
           {i < words.length - 1 ? ' ' : ''}
         </Fragment>
       ))}
-    </p>
+    </Tag>
   )
 }

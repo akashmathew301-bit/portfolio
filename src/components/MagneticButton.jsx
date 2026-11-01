@@ -5,14 +5,14 @@ const VARIANTS = {
   primary:
     'text-white bg-blue-grad shadow-glow hover:shadow-glow-lg border border-white/10',
   outline:
-    'text-white glass hover:border-blue-glow/45 hover:shadow-glow-sm',
+    'text-white bg-ink-950/85 backdrop-blur border border-white/10 hover:border-blue-glow/45 hover:shadow-glow-sm',
   ghost:
     'text-muted hover:text-white border border-transparent hover:border-white/10',
 }
 
 /**
  * Magnetic CTA. Renders a <button> by default, or an <a> when `href` is given.
- * The inner label drifts slightly less than the shell — that offset is what
+ * The inner label drifts slightly less than the shell, that offset is what
  * makes the effect read as "magnetic" rather than just "moving".
  */
 export default function MagneticButton({
@@ -24,10 +24,14 @@ export default function MagneticButton({
   icon,
   className = '',
   strength = 0.3,
+  shimmer,
   ...rest
 }) {
   const ref = useMagnetic({ strength })
   const Tag = href ? 'a' : 'button'
+  /* the rotating shimmer edge is the signature on every CTA; pass
+     shimmer={false} for the rare button that should sit quiet */
+  const ring = shimmer ?? variant !== 'ghost'
 
   const sizes = {
     sm: 'px-5 py-2.5 text-sm',
@@ -35,14 +39,14 @@ export default function MagneticButton({
     lg: 'px-8 py-4 text-base',
   }
 
-  return (
+  const button = (
     <Tag
-      ref={ref}
+      ref={ring ? undefined : ref}
       href={href}
       onClick={onClick}
       type={href ? undefined : rest.type || 'button'}
       data-cursor="hover"
-      className={`group relative inline-flex select-none items-center justify-center gap-2.5 overflow-hidden rounded-full font-medium tracking-tight transition-[box-shadow,border-color,background-color] duration-500 ease-premium will-tf ${sizes[size]} ${VARIANTS[variant]} ${className}`}
+      className={`group relative inline-flex select-none items-center justify-center gap-2.5 overflow-hidden rounded-full font-medium tracking-tight transition-[box-shadow,border-color,background-color] duration-500 ease-premium will-tf ${sizes[size]} ${VARIANTS[variant]} ${ring ? '' : className}`}
       {...rest}
     >
       {/* light sweep */}
@@ -61,5 +65,13 @@ export default function MagneticButton({
         )}
       </span>
     </Tag>
+  )
+
+  if (!ring) return button
+
+  return (
+    <span ref={ref} className={`shimmer-wrap will-tf ${className}`}>
+      {button}
+    </span>
   )
 }

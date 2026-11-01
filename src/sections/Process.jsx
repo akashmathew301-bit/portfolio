@@ -10,7 +10,7 @@ import processSteps from '../data/process'
 const EASE = [0.22, 1, 0.36, 1]
 
 /**
- * One step. It does not just fade in — it *activates* as the scroll-drawn rail
+ * One step. It does not just fade in, it *activates* as the scroll-drawn rail
  * reaches it: the node fills with the blue gradient, the card lifts and its
  * glow switches on. `progress` is the rail's 0→1 draw value.
  *
@@ -62,13 +62,24 @@ function Step({ step, index, total, progress }) {
         <motion.span
           style={{ opacity: fill }}
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 rounded-3xl shadow-[0_0_60px_-22px_rgba(10,108,255,1)]"
+          className="pointer-events-none absolute inset-0 rounded-3xl shadow-[0_0_38px_-26px_rgba(10,108,255,0.85)]"
         />
         <div className="glass relative flex h-full flex-col overflow-hidden rounded-3xl p-5 sm:p-6">
+          {/* the card fills with blue as the rail reaches this step */}
+          <motion.span
+            style={{ opacity: fill }}
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 rounded-3xl bg-[linear-gradient(155deg,rgba(10,108,255,0.3),rgba(0,75,147,0.14)_52%,rgba(10,108,255,0.06))]"
+          />
+          <motion.span
+            style={{ opacity: fill }}
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 rounded-3xl ring-1 ring-inset ring-blue-main/40"
+          />
           {/* ghost number */}
           <span
             aria-hidden="true"
-            className="pointer-events-none absolute -right-3 -top-6 font-display text-[5.5rem] font-bold leading-none text-white/[0.04]"
+            className="pointer-events-none absolute -right-3 -top-6 font-display text-[5.5rem] font-bold leading-none text-white/[0.06]"
           >
             {step.step}
           </span>
@@ -76,7 +87,7 @@ function Step({ step, index, total, progress }) {
           <motion.span
             style={{ opacity: fill }}
             aria-hidden="true"
-            className="pointer-events-none absolute -left-12 -top-12 h-36 w-36 rounded-full bg-[radial-gradient(circle,rgba(10,108,255,0.3),transparent_70%)] blur-2xl"
+            className="pointer-events-none absolute -left-12 -top-12 h-36 w-36 rounded-full bg-[radial-gradient(circle,rgba(45,156,255,0.22),transparent_70%)] blur-2xl"
           />
 
           <div className="relative flex items-center gap-2.5">
@@ -84,7 +95,7 @@ function Step({ step, index, total, progress }) {
               STEP {step.step}
             </span>
             <span className="h-px flex-1 bg-white/10" />
-            <span className="whitespace-nowrap rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1 text-[10.5px] text-muted">
+            <span className="whitespace-nowrap rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1 text-[11.5px] text-muted">
               {step.duration}
             </span>
           </div>
@@ -92,7 +103,7 @@ function Step({ step, index, total, progress }) {
           <h3 className="relative mt-4 font-display text-xl font-semibold tracking-tight text-white sm:text-2xl">
             {step.title}
           </h3>
-          <p className="relative mt-2.5 text-[13.5px] leading-relaxed text-muted">{step.description}</p>
+          <p className="relative mt-2.5 text-[13.5px] leading-relaxed text-white/85">{step.description}</p>
 
           <ul className="relative mt-auto space-y-2 border-t border-white/[0.07] pt-4 [margin-top:1.5rem]">
             {step.points.map((p) => (
@@ -137,7 +148,7 @@ export default function Process() {
               'Four steps from idea',
               { text: 'to a live website.', node: <span className="text-grad">to a live website.</span> },
             ]}
-            lead="No jargon, no long agency process. You always know what is happening and what comes next."
+            lead="No jargon and no three-month agency process. At every point you know what is being built, what it costs and what happens next."
             className="max-w-2xl"
           />
           <div className="shrink-0">

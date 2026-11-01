@@ -2,9 +2,10 @@ import Icon from './Icon'
 import site from '../data/site'
 
 /**
- * Social buttons that light up in each platform's own brand colour on hover
- * (Instagram gets its full orange→purple gradient, WhatsApp green, LinkedIn
- * blue). Colours live in `site.socials` so there is one place to edit them.
+ * Social buttons that sit in their platform's own colour at rest: the button
+ * is filled with the brand (Instagram gets its full orange to purple
+ * gradient, WhatsApp green, LinkedIn blue) and hover only lifts it and pushes
+ * the glow. Colours live in `site.socials`, one place to edit them.
  */
 export default function SocialLinks({ size = 'md', className = '', items }) {
   const links = items || site.socials
@@ -22,19 +23,22 @@ export default function SocialLinks({ size = 'md', className = '', items }) {
             aria-label={s.label}
             title={s.label}
             data-cursor="hover"
-            style={{ '--brand': s.color, '--brand-glow': s.glow }}
-            className={`group relative flex ${dims} items-center justify-center overflow-hidden rounded-full border border-white/12 bg-white/[0.04] text-white transition-[transform,border-color,box-shadow] duration-500 ease-premium hover:-translate-y-0.5 hover:border-[color:var(--brand)] hover:shadow-[0_8px_26px_-6px_var(--brand-glow)]`}
+            style={{
+              '--brand': s.color,
+              '--brand-glow': s.glow,
+              background: s.gradient || s.color,
+            }}
+            className={`group relative flex ${dims} items-center justify-center overflow-hidden rounded-full border border-white/20 text-white shadow-[0_8px_20px_-10px_var(--brand-glow)] transition-[transform,box-shadow] duration-500 ease-premium hover:-translate-y-0.5 hover:shadow-[0_12px_30px_-8px_var(--brand-glow)]`}
           >
-            {/* brand colour wash, revealed on hover */}
+            {/* gloss, so the fill reads as a button rather than a flat swatch */}
             <span
               aria-hidden="true"
-              className="absolute inset-0 scale-0 rounded-full opacity-0 transition-all duration-500 ease-premium group-hover:scale-100 group-hover:opacity-100"
-              style={{ background: s.gradient || s.color }}
+              className="pointer-events-none absolute inset-0 rounded-full bg-[linear-gradient(150deg,rgba(255,255,255,0.35),rgba(255,255,255,0.08)_42%,transparent_65%)]"
             />
             <Icon
               name={s.icon}
               size={icon}
-              className="relative z-10 transition-transform duration-500 ease-premium group-hover:scale-110"
+              className="relative z-10 drop-shadow-[0_1px_2px_rgba(0,0,0,0.35)] transition-transform duration-500 ease-premium group-hover:scale-110"
             />
           </a>
         </li>

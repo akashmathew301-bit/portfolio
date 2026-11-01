@@ -58,6 +58,26 @@ export default function Select({
     setOpen(true)
   }
 
+  /* A list that is taller than its box looks static until it moves. On open
+     it glides down a little and back, which reads as "there is more here"
+     without a label telling you so. */
+  useEffect(() => {
+    if (!open) return
+    const list = listRef.current
+    if (!list || list.scrollHeight <= list.clientHeight + 8) return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+
+    const down = window.setTimeout(
+      () => list.scrollTo({ top: Math.min(96, list.scrollHeight - list.clientHeight), behavior: 'smooth' }),
+      260,
+    )
+    const back = window.setTimeout(() => list.scrollTo({ top: 0, behavior: 'smooth' }), 900)
+    return () => {
+      window.clearTimeout(down)
+      window.clearTimeout(back)
+    }
+  }, [open])
+
   const commit = (index) => {
     const option = items[index]
     if (option === undefined) return
@@ -197,7 +217,10 @@ export default function Select({
               ref={listRef}
               role="listbox"
               aria-label="Service"
-              className="no-scrollbar max-h-[264px] overflow-y-auto p-1.5"
+              /* Lenis hijacks the wheel for the page, so the list would never
+                 scroll under the cursor without this opt-out. */
+              data-lenis-prevent="true"
+              className="thin-scroll h-[256px] overflow-y-auto overscroll-contain p-1.5"
             >
               {items.map((option, i) => {
                 const isSelected = option.value === value
@@ -232,6 +255,10 @@ export default function Select({
                 )
               })}
             </ul>
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-x-0 bottom-0 h-10 rounded-b-2xl bg-[linear-gradient(to_top,rgba(6,9,15,0.95),transparent)]"
+            />
           </motion.div>
         )}
       </AnimatePresence>

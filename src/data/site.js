@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------
-   SITE CONFIG — edit everything about the brand from this one file.
+   SITE CONFIG, edit everything about the brand from this one file.
    ------------------------------------------------------------------ */
 
 export const site = {
@@ -9,7 +9,7 @@ export const site = {
   location: 'Coimbatore, India',
   tagline: 'I build websites that bring customers.',
   intro:
-    'For five years I have been the person local businesses call when their website is not bringing anyone in. Clinics, gyms, law firms, factories, farm-tech brands — I design it, build it, get it found on Google, and I am still on WhatsApp long after launch.',
+    'A website nobody finds is just an expense. I build the ones that get found on Google, get read in five seconds, and get you the call. Wherever your business is.',
 
   /* Contact -------------------------------------------------------- */
   phone: '9047950974', // plain, as displayed in India
@@ -21,7 +21,7 @@ export const site = {
   linkedin: 'https://www.linkedin.com/in/akash-mathew-589900262/',
   linkedinHandle: 'Akash Mathew',
 
-  /* Social links — `color` is the platform's own brand colour and is used
+  /* Social links, `color` is the platform's own brand colour and is used
      for the icon hover state everywhere on the site.                      */
   socials: [
     {
@@ -59,7 +59,7 @@ export const site = {
     },
   ],
 
-  /* Images — drop your files in /public/images and change the names here.
+  /* Images, drop your files in /public/images and change the names here.
      The hero uses a true transparent-background cut-out, so it can sit on
      top of glows and rings without any visible box.                       */
   images: {
@@ -79,7 +79,7 @@ export const site = {
       alt: 'Portrait of Akash, founder of Akash Web Solutions',
       position: 'center top',
     },
-    /* Studio headshot, keyed off its blue backdrop — floats on the About
+    /* Studio headshot, keyed off its blue backdrop, floats on the About
        section's light ring with a soft bottom fade.                         */
     about: {
       src: '/images/akash-about-cutout.webp',
@@ -89,22 +89,39 @@ export const site = {
       alt: 'Akash Mathew, founder of Akash Web Solutions, Coimbatore',
       position: 'center bottom',
     },
+    /* The A monogram, keyed off the artwork's black field so its glow sits
+       on any background. This is the logo everywhere: navbar, footer, icon. */
+    mark: {
+      src: '/images/akash-mark.webp',
+      fallback: '/images/akash-mark.png',
+      width: 640,
+      height: 495,
+      alt: '',
+    },
+    /* Seated pose, used by the orbit banner under the hero. */
+    seated: {
+      src: '/images/akash-seated-cutout.webp',
+      fallback: '/images/akash-seated-cutout.png',
+      width: 789,
+      height: 1419,
+      alt: 'Akash seated, surrounded by web development, SEO and digital marketing icons',
+    },
     /* The original framed crops are still in /public/images if you ever want
        a non-cut-out look: akash-hero.webp / akash-portrait.webp             */
   },
 
-  /* Hero floating badges — slots: top-left, bottom-left, top-right ---- */
+  /* Hero floating badges, slots: top-left, bottom-left, top-right ---- */
   badges: [
     { label: '5+ Years Experience', pos: 'top-left' },
     { label: 'Web • SEO • Marketing', pos: 'bottom-left' },
-    { label: 'Coimbatore, India', pos: 'top-right' },
+    { label: 'Free sample first', pos: 'top-right' },
   ],
 
   /* About counters -------------------------------------------------- */
   stats: [
     { value: 5, suffix: '+', label: 'Years of experience' },
-    { value: 40, suffix: '+', label: 'Projects delivered' },
-    { value: 30, suffix: '+', label: 'Happy clients' },
+    { value: 120, suffix: '+', label: 'Projects delivered' },
+    { value: 90, suffix: '+', label: 'Happy clients' },
     { value: 100, suffix: '%', label: 'Client-first delivery' },
   ],
 

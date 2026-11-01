@@ -42,7 +42,7 @@ export default function Reveal({
   )
 }
 
-/** Staggered container — pair with <RevealItem>. */
+/** Staggered container, pair with <RevealItem>. */
 export function RevealGroup({ children, className = '', stagger = 0.08, delay = 0, amount = 0.2, once = true }) {
   const reduced = useReducedMotion()
   if (reduced) return <div className={className}>{children}</div>
@@ -84,7 +84,7 @@ export function RevealItem({ children, className = '', y = 34, as: Tag = 'div', 
 
 /**
  * Line-by-line mask reveal. Each line sits in an overflow-hidden box and
- * rises out of it — the signature "awwwards" headline entrance.
+ * rises out of it, the signature "awwwards" headline entrance.
  */
 export function MaskLines({
   lines = [],
