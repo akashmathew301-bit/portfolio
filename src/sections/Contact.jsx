@@ -66,8 +66,12 @@ function Field({ id, label, error, children, hint, optional, n }) {
   )
 }
 
+/* 16px is not a taste call. Safari on iOS zooms the viewport in when you
+   focus a field whose font-size is under 16px, and it does not zoom back out,
+   so the page is left scaled and scrolled sideways for the rest of the visit.
+   Every real control here is 16px up to sm and the old 15px above it. */
 const inputBase =
-  'w-full rounded-2xl border bg-white/[0.03] px-4 py-3.5 text-[15px] text-white placeholder:text-muted/60 outline-none transition-all duration-400 ease-premium focus:bg-white/[0.055]'
+  'w-full rounded-2xl border bg-white/[0.03] px-4 py-3.5 text-[16px] sm:text-[15px] text-white placeholder:text-muted/60 outline-none transition-all duration-400 ease-premium focus:bg-white/[0.055]'
 
 /* ------------------------------------------------------- brief score */
 /* A Lighthouse-style ring. It is the one metric this audience already reads,
@@ -493,7 +497,7 @@ export default function Contact() {
                         <div className="relative">
                           <span
                             aria-hidden="true"
-                            className="pointer-events-none absolute left-4 top-1/2 flex -translate-y-1/2 items-center gap-2 text-[15px] text-white/90"
+                            className="pointer-events-none absolute left-4 top-1/2 flex -translate-y-1/2 items-center gap-2 text-[16px] text-white/90 sm:text-[15px]"
                           >
                             +91
                             <span className="h-4 w-px bg-white/15" />

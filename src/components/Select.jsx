@@ -2,6 +2,7 @@ import { useEffect, useId, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import Icon from './Icon'
 import useReducedMotion from '../hooks/useReducedMotion'
+import { useApp } from '../context/AppContext'
 
 /**
  * Accessible combobox-style dropdown.
@@ -24,6 +25,7 @@ export default function Select({
   describedBy,
 }) {
   const reduced = useReducedMotion()
+  const { setOverlayOpen } = useApp()
   const [open, setOpen] = useState(false)
   const [highlight, setHighlight] = useState(-1)
   const rootRef = useRef(null)
@@ -35,6 +37,13 @@ export default function Select({
   const items = options.map((o) => (typeof o === 'string' ? { value: o, label: o } : o))
   const selectedIndex = items.findIndex((o) => o.value === value)
   const selected = items[selectedIndex]
+
+  /* tell the page something is open over it, and always lower the flag on
+     unmount so a dock cannot be left hidden by a dropdown that no longer exists */
+  useEffect(() => {
+    setOverlayOpen(open)
+    return () => setOverlayOpen(false)
+  }, [open, setOverlayOpen])
 
   /* close on outside click */
   useEffect(() => {
@@ -174,7 +183,7 @@ export default function Select({
         onKeyDown={onKeyDown}
         onBlur={onBlur}
         data-cursor="hover"
-        className={`flex w-full items-center justify-between gap-3 rounded-2xl border bg-white/[0.03] px-4 py-3.5 text-left text-[15px] outline-none transition-all duration-400 ease-premium hover:bg-white/[0.05] ${
+        className={`flex w-full items-center justify-between gap-3 rounded-2xl border bg-white/[0.03] px-4 py-3.5 text-left text-[16px] outline-none transition-all duration-400 ease-premium hover:bg-white/[0.05] sm:text-[15px] ${
           invalid
             ? 'border-[#FF8080]/50 focus-visible:border-[#FF8080]'
             : open

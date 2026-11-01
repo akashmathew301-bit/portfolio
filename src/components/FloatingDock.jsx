@@ -4,6 +4,7 @@ import Icon from './Icon'
 import useReducedMotion from '../hooks/useReducedMotion'
 import { scrollToTop } from '../lib/smoothScroll'
 import site, { whatsappLink } from '../data/site'
+import { useApp } from '../context/AppContext'
 
 const DEFAULT_MESSAGE = 'Hi Akash, I found your website and want to connect.'
 
@@ -86,6 +87,7 @@ function WhatsAppButton({ reduced }) {
 export default function FloatingDock() {
   const [show, setShow] = useState(false)
   const reduced = useReducedMotion()
+  const { overlayOpen } = useApp()
 
   /**
    * The dock follows reading intent instead of sitting there permanently.
@@ -127,7 +129,7 @@ export default function FloatingDock() {
 
   return (
     <AnimatePresence>
-      {show && (
+      {show && !overlayOpen && (
         <motion.div
           initial={{ opacity: 0, scale: 0.6, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
