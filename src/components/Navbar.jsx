@@ -12,14 +12,50 @@ export default function Navbar() {
   const ids = useMemo(() => site.nav.map((n) => n.id), [])
   const active = useActiveSection(ids)
   const [scrolled, setScrolled] = useState(false)
+  const [hidden, setHidden] = useState(false)
   const [open, setOpen] = useState(false)
 
+  /**
+   * The bar follows reading intent, the same rule the floating dock uses.
+   *
+   * Scrolling DOWN means the visitor is reading, so the bar slides away and
+   * gives a phone back its top 60px. Scrolling UP means they are looking for
+   * something, which is exactly when navigation should be there. Near the top
+   * of the page it is always shown. The 6px threshold stops it flickering on
+   * scroll jitter and on the rubber-band bounce at either end.
+   */
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24)
-    onScroll()
+    let last = window.scrollY
+    let ticking = false
+
+    const evaluate = () => {
+      const y = window.scrollY
+      const delta = y - last
+      setScrolled(y > 24)
+
+      if (y < 120) setHidden(false)
+      else if (delta > 6) setHidden(true)
+      else if (delta < -6) setHidden(false)
+
+      if (Math.abs(delta) > 6) last = y
+      ticking = false
+    }
+
+    const onScroll = () => {
+      if (ticking) return
+      ticking = true
+      window.requestAnimationFrame(evaluate)
+    }
+
+    evaluate()
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
+
+  /* An open menu must never scroll itself out of reach. */
+  useEffect(() => {
+    if (open) setHidden(false)
+  }, [open])
 
   useEffect(() => {
     lockScroll(open)
@@ -36,9 +72,9 @@ export default function Navbar() {
   return (
     <>
       <header
-        className={`fixed inset-x-0 top-0 z-[100] transition-all duration-500 ease-premium ${
+        className={`fixed inset-x-0 top-0 z-[100] transition-[transform,padding] duration-500 ease-premium ${
           scrolled ? 'py-2.5' : 'py-4 sm:py-5'
-        }`}
+        } ${hidden && !open ? '-translate-y-[130%]' : 'translate-y-0'}`}
       >
         <div className="container-x">
           <nav

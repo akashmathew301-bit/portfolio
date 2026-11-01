@@ -22,18 +22,21 @@ const BADGE_POS = {
 
 /**
  * Hero photo: a true transparent-background cut-out, so it can sit on top of
- * the rings and glows with no box around it. Desktop gets the wide composite,
- * mobile an art-directed portrait crop, one <picture>, one download.
+ * the rings and glows with no box around it.
+ *
+ * One image at every width. There used to be an art-directed portrait crop for
+ * phones, but that crop sliced the WordPress tile off the left and the SEO card
+ * off the right, so the banner arrived visibly cut. The whole composite is the
+ * point of the picture, so phones get the whole composite too, run full-bleed
+ * to keep it as large as the screen allows.
  */
 function HeroPhoto({ glow = false, onFail, onReady }) {
-  const { hero, portrait } = site.images
+  const { hero } = site.images
   return (
     <picture className="block h-full w-full">
-      <source media="(min-width: 1024px)" srcSet={hero.src} type="image/webp" />
-      <source media="(min-width: 1024px)" srcSet={hero.fallback} type="image/png" />
-      <source srcSet={portrait.src} type="image/webp" />
+      <source srcSet={hero.src} type="image/webp" />
       <img
-        src={portrait.fallback}
+        src={hero.fallback}
         alt={glow ? '' : hero.alt}
         aria-hidden={glow ? 'true' : undefined}
         width={hero.width}
@@ -119,7 +122,7 @@ export default function Hero() {
       id="home"
       ref={sectionRef}
       aria-label="Introduction"
-      className="relative flex min-h-[100svh] items-center overflow-hidden pb-14 pt-28 sm:pb-20 sm:pt-32 lg:pb-24 lg:pt-28"
+      className="relative flex min-h-[100svh] items-center overflow-hidden pb-14 pt-24 sm:pb-20 sm:pt-32 lg:pb-24 lg:pt-28"
     >
       <HeroAura />
 
@@ -130,9 +133,11 @@ export default function Hero() {
       />
 
       <motion.div style={{ opacity: heroFade }} className="container-x relative z-10 w-full">
-        <div className="grid items-center gap-10 lg:grid-cols-12 lg:gap-6">
-          {/* ---------------- Text ---------------- */}
-          <motion.div style={{ y: textScrollY }} className="relative z-20 lg:col-span-6">
+        <div className="grid items-center gap-8 sm:gap-10 lg:grid-cols-12 lg:gap-6">
+          {/* ---------------- Text ----------------
+               On a phone the banner leads and the words follow, so the first
+               thing on screen is the picture rather than a wall of type. */}
+          <motion.div style={{ y: textScrollY }} className="relative z-20 order-2 lg:order-1 lg:col-span-6">
             <motion.div
               initial={{ opacity: 0, y: 14 }}
               animate={loaded ? { opacity: 1, y: 0 } : {}}
@@ -206,9 +211,12 @@ export default function Hero() {
           {/* ---------------- Photo ---------------- */}
           <motion.div
             style={{ y: photoScrollY }}
-            className="relative z-10 lg:col-span-6 lg:-mr-[4%] xl:-mr-[8%]"
+            className="relative z-10 order-1 lg:order-2 lg:col-span-6 lg:-mr-[4%] xl:-mr-[8%]"
           >
-            <div className="relative mx-auto w-full max-w-[460px] sm:max-w-[540px] lg:max-w-none">
+            {/* -mx pulls the banner back out through the container gutter, so
+                on a phone it runs edge to edge instead of sitting in a column
+                two-thirds as wide as the screen. */}
+            <div className="relative -mx-5 w-[calc(100%+2.5rem)] sm:mx-auto sm:w-full sm:max-w-[560px] lg:max-w-none">
               {/* ---------- light stage ----------
                    No rings: a shaft of light from above, a bright floor line
                    he stands on, and a faint grid behind. Reads as a studio set
@@ -262,7 +270,7 @@ export default function Hero() {
                 initial={{ opacity: 0, scale: 0.94, filter: 'blur(18px)' }}
                 animate={show ? { opacity: 1, scale: 1, filter: 'blur(0px)' } : {}}
                 transition={{ duration: 1.25, ease: [0.22, 1, 0.36, 1], delay: 0.25 }}
-                className="relative aspect-[4/5] w-full sm:aspect-[5/4] lg:aspect-[3/2]"
+                className="relative aspect-[1600/1133] w-full lg:aspect-[3/2]"
               >
                 {failed ? (
                   <div className="flex h-full w-full flex-col items-center justify-center gap-3 rounded-[28px] border border-white/10 bg-[linear-gradient(140deg,#05070A,#0A1428_55%,#05070A)]">
@@ -296,7 +304,7 @@ export default function Hero() {
                     initial={{ opacity: 0, scale: 0.85, y: 12 }}
                     animate={show ? { opacity: 1, scale: 1, y: 0 } : {}}
                     transition={{ duration: 0.7, delay: 0.7 + i * 0.12, ease: [0.22, 1, 0.36, 1] }}
-                    className={`absolute z-20 hidden xs:block ${BADGE_POS[badge.pos]}`}
+                    className={`absolute z-20 hidden lg:block ${BADGE_POS[badge.pos]}`}
                   >
                     <span
                       className={`glass-strong inline-flex items-center whitespace-nowrap rounded-full px-3.5 py-2 text-[11px] font-medium tracking-tight text-white shadow-[0_8px_30px_-10px_rgba(0,0,0,0.9)] sm:px-4 sm:text-xs ${

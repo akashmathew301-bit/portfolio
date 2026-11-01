@@ -1,3 +1,5 @@
+import { useEffect, useRef, useState } from 'react'
+
 import Icon from '../components/Icon'
 import SectionHeading from '../components/SectionHeading'
 import SmartImage from '../components/SmartImage'
@@ -138,7 +140,81 @@ function ProjectCard({ project, index }) {
   )
 }
 
+/**
+ * Position readout for the mobile slider: which card you are on, how far
+ * through you are, and a nudge that there is more to the right.
+ *
+ * Ten projects is too many for a row of tappable dots at phone width, each
+ * target ends up below the size a thumb can reliably hit, so this reads the
+ * scroll position back instead of trying to drive it. The swipe is the
+ * control; this just tells you where you are.
+ */
+function SliderProgress({ index, count }) {
+  const pad = (n) => String(n).padStart(2, '0')
+  return (
+    <div className="mt-5 flex items-center gap-4 sm:hidden">
+      <span className="font-mono text-[11px] tabular-nums text-white">
+        {pad(index + 1)}
+        <span className="text-white/30"> / {pad(count)}</span>
+      </span>
+
+      <span aria-hidden="true" className="relative h-[3px] flex-1 overflow-hidden rounded-full bg-white/10">
+        <span
+          className="absolute inset-y-0 left-0 rounded-full bg-blue-grad shadow-glow-sm transition-transform duration-500 ease-premium"
+          style={{ width: `${100 / count}%`, transform: `translateX(${index * 100}%)` }}
+        />
+      </span>
+
+      <span className="inline-flex shrink-0 items-center gap-1.5 text-[11px] text-muted">
+        Swipe
+        <Icon name="arrowRight" size={13} className="text-blue-glow" />
+      </span>
+    </div>
+  )
+}
+
 export default function Work() {
+  const trackRef = useRef(null)
+  const [index, setIndex] = useState(0)
+  const count = projects.length
+
+  /* Which card is nearest the middle of the track. Read from the real scroll
+     position rather than kept in state and pushed, so a flick, a drag and a
+     keyboard tab into a card all report the same answer. */
+  useEffect(() => {
+    const el = trackRef.current
+    if (!el || count < 2) return
+    let ticking = false
+
+    const read = () => {
+      ticking = false
+      const cards = el.children
+      if (!cards.length) return
+      const middle = el.scrollLeft + el.clientWidth / 2
+      let best = 0
+      let bestGap = Infinity
+      for (let i = 0; i < cards.length; i++) {
+        const card = cards[i]
+        const gap = Math.abs(card.offsetLeft + card.offsetWidth / 2 - middle)
+        if (gap < bestGap) {
+          bestGap = gap
+          best = i
+        }
+      }
+      setIndex(best)
+    }
+
+    const onScroll = () => {
+      if (ticking) return
+      ticking = true
+      window.requestAnimationFrame(read)
+    }
+
+    read()
+    el.addEventListener('scroll', onScroll, { passive: true })
+    return () => el.removeEventListener('scroll', onScroll)
+  }, [count])
+
   return (
     <section id="work" className="section-pad relative z-10">
       <div className="container-x">
@@ -159,19 +235,36 @@ export default function Work() {
           </div>
         </div>
 
+        {/* ---------------- the work ----------------
+             One card at a time on a phone, swiped. Ten of these stacked
+             vertically is a very long scroll past work the visitor did not ask
+             to see one by one; side by side they can flick through and stop at
+             the one that looks like their own business.
+
+             It is a native scroll-snap track, not a JS carousel: the swipe is
+             the browser's own, so it keeps its momentum, its rubber band and
+             its accessibility for free. From sm up nothing changes, the same
+             children fall back into the original grid. */}
         <RevealGroup
-          className="mt-9 grid gap-4 [perspective:1400px] sm:mt-10 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5"
+          innerRef={trackRef}
+          data-lenis-prevent="true"
+          className="no-scrollbar -mx-5 mt-9 flex snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain scroll-px-5 px-5 pb-2 [perspective:1400px] sm:mx-0 sm:mt-10 sm:grid sm:snap-none sm:overflow-x-visible sm:px-0 sm:pb-0 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5"
           stagger={0.08}
           amount={0.1}
         >
           {projects.map((project, i) => (
-            <RevealItem key={project.id} className="h-full">
+            <RevealItem
+              key={project.id}
+              className="w-[85vw] max-w-[360px] shrink-0 snap-start sm:w-auto sm:max-w-none sm:shrink sm:h-full"
+            >
               <ProjectCard project={project} index={i} />
             </RevealItem>
           ))}
         </RevealGroup>
 
-        {projects.length === 0 && (
+        {count > 1 && <SliderProgress index={index} count={count} />}
+
+        {count === 0 && (
           <p className="mt-12 text-center text-muted">Projects are being added. Check back soon.</p>
         )}
       </div>

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import Icon from './Icon'
 import { MaskLines } from './Reveal'
+import useMediaQuery, { useIsTouch } from '../hooks/useMediaQuery'
 import useReducedMotion from '../hooks/useReducedMotion'
 import { whatsappLink } from '../data/site'
 
@@ -83,7 +84,7 @@ function MiniSite({ reduced }) {
         </div>
 
         {/* the page itself, styled rather than skeleton grey */}
-        <div className="relative p-4 sm:p-5">
+        <div className="relative p-3.5 sm:p-5">
           <div className={`flex items-center justify-between ${mini}`} style={at(0.2)}>
             <span className="h-6 w-6 rounded-lg bg-blue-grad shadow-glow-sm" />
             <span className="flex gap-2">
@@ -93,7 +94,7 @@ function MiniSite({ reduced }) {
             </span>
           </div>
 
-          <div className="mt-5 flex gap-4">
+          <div className="mt-4 flex gap-3 sm:mt-5 sm:gap-4">
             <div className="min-w-0 flex-1">
               <span className={`block h-2.5 w-[86%] rounded-full bg-white/85 ${mini}`} style={at(0.5)} />
               <span className={`mt-2 block h-2.5 w-[62%] rounded-full bg-white/85 ${mini}`} style={at(0.72)} />
@@ -138,7 +139,7 @@ function MiniSite({ reduced }) {
             />
           </div>
 
-          <div className="mt-4 flex gap-2">
+          <div className="mt-3 flex gap-2 sm:mt-4">
             {[0, 1, 2].map((i) => (
               <span
                 key={i}
@@ -156,7 +157,11 @@ function MiniSite({ reduced }) {
       {/* the enquiry landing on WhatsApp, which is the actual promise */}
       {/* the animation writes its own transform, so the centring has to live
           on a separate wrapper or it gets overwritten mid-keyframe */}
-      <div className={`absolute -bottom-5 right-0 w-[74%] ${reduced ? 'hidden' : ''}`}>
+      <div
+        className={`ml-auto mt-2 w-[78%] sm:absolute sm:-bottom-5 sm:right-0 sm:mt-0 sm:w-[74%] ${
+          reduced ? 'hidden' : ''
+        }`}
+      >
         <div className={reduced ? '' : 'animate-notif'}>
         <div className="flex items-center gap-2.5 rounded-2xl border border-white/[0.12] bg-[#0d1b14]/95 px-3 py-2.5 shadow-[0_18px_40px_-14px_rgba(0,0,0,1),0_0_30px_-10px_rgba(37,211,102,0.8)] backdrop-blur">
           <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[linear-gradient(145deg,#2BE673,#128C4B)]">
@@ -178,18 +183,41 @@ function MiniSite({ reduced }) {
  * The offer, seven seconds in, on every load. Seven seconds is long enough
  * that the visitor has seen real work first, so it reads as an invitation
  * rather than an ad.
+ *
+ * DESKTOP ONLY. On a phone or a tablet an interstitial this size takes the
+ * whole screen away from someone who is still reading, and the floating
+ * WhatsApp dock already puts the same conversation one tap away there. So the
+ * gate is both width and pointer: a real desktop window, driven by a mouse.
+ * Pointer matters on its own because a tablet in landscape is wide enough to
+ * pass a width test and is still a tablet.
  */
 export default function OfferPopup() {
   const [open, setOpen] = useState(false)
   const reduced = useReducedMotion()
+  const isWide = useMediaQuery('(min-width: 1024px)')
+  const isTouch = useIsTouch()
+  const isDesktop = isWide && !isTouch
   const closeRef = useRef(null)
+  const dialogRef = useRef(null)
+  /* the gate can re-run on a resize, and nobody wants an offer they already
+     closed served back to them for dragging their window wider */
+  const dismissed = useRef(false)
 
   useEffect(() => {
+    if (!isDesktop || dismissed.current) {
+      /* covers the resize case too: drag a desktop window narrow and the
+         dialog leaves rather than being left stranded over the page */
+      setOpen(false)
+      return undefined
+    }
     const id = window.setTimeout(() => setOpen(true), DELAY_MS)
     return () => window.clearTimeout(id)
-  }, [])
+  }, [isDesktop])
 
-  const dismiss = () => setOpen(false)
+  const dismiss = () => {
+    dismissed.current = true
+    setOpen(false)
+  }
 
   useEffect(() => {
     if (!open) return
@@ -199,6 +227,7 @@ export default function OfferPopup() {
     document.addEventListener('keydown', onKey)
     const prev = document.body.style.overflow
     document.body.style.overflow = 'hidden'
+    if (dialogRef.current) dialogRef.current.scrollTop = 0
     closeRef.current?.focus()
     return () => {
       document.removeEventListener('keydown', onKey)
@@ -237,13 +266,14 @@ export default function OfferPopup() {
             {/* travelling edge light, the same language as the site's buttons */}
             <div className={reduced ? '' : 'shimmer-card'}>
               <div
+                ref={dialogRef}
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="offer-title"
                 data-lenis-prevent="true"
-                className="no-scrollbar relative max-h-[86dvh] overflow-y-auto overscroll-contain rounded-[26px] bg-[linear-gradient(150deg,#123a7d,#0b2050_42%,#060c18)]"
+                className="no-scrollbar relative max-h-[88dvh] overflow-y-auto overscroll-contain rounded-[22px] sm:rounded-[26px] bg-[linear-gradient(150deg,#123a7d,#0b2050_42%,#060c18)]"
               >
-                <span aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden rounded-[26px]">
+                <span aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden rounded-[22px] sm:rounded-[26px]">
                   <span
                     className={`absolute -left-[16%] -top-[32%] h-[72%] w-[72%] rounded-full bg-[radial-gradient(circle,rgba(45,156,255,0.6),transparent_68%)] blur-[60px] ${
                       reduced ? '' : 'animate-aurora'
@@ -264,14 +294,14 @@ export default function OfferPopup() {
                   onClick={dismiss}
                   aria-label="Close"
                   data-cursor="hover"
-                  className="absolute right-4 top-4 z-30 flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-black/30 text-white/70 backdrop-blur transition-colors duration-300 hover:border-white/35 hover:text-white"
+                  className="absolute right-3 top-3 z-30 flex h-8 w-8 items-center justify-center sm:right-4 sm:top-4 sm:h-9 sm:w-9 rounded-full border border-white/15 bg-black/30 text-white/70 backdrop-blur transition-colors duration-300 hover:border-white/35 hover:text-white"
                 >
                   <Icon name="close" size={16} />
                 </button>
 
                 <div className="relative grid items-center gap-0 md:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
                   {/* ---------------- pitch ---------------- */}
-                  <div className="p-6 pr-16 sm:p-8 sm:pr-8">
+                  <div className="p-5 pr-14 sm:p-8 sm:pr-8">
                     <span className="eyebrow !border-white/25 !bg-black/30 !text-white">
                       <span className="relative flex h-2 w-2">
                         <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#2BE673] opacity-75" />
@@ -295,19 +325,19 @@ export default function OfferPopup() {
                       ]}
                       delay={0.15}
                       stagger={0.12}
-                      className="mt-5 font-display text-[clamp(1.6rem,4.4vw,2.4rem)] font-semibold leading-[1.07] tracking-tight text-white"
+                      className="mt-3 font-display text-[clamp(1.45rem,5.6vw,2.4rem)] sm:mt-5 font-semibold leading-[1.07] tracking-tight text-white"
                     />
 
-                    <p className="mt-4 max-w-sm text-[14.5px] leading-relaxed text-white/85">
+                    <p className="mt-3 max-w-sm text-[13.5px] leading-relaxed text-white/85 sm:mt-4 sm:text-[14.5px]">
                       Send me your business name. I build a real sample page for it, then you
                       decide.
                     </p>
 
-                    <ul className="mt-5 flex flex-wrap gap-2">
+                    <ul className="mt-3.5 flex flex-wrap gap-1.5 sm:mt-5 sm:gap-2">
                       {PROOF.map((t) => (
                         <li
                           key={t}
-                          className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.14] bg-white/[0.06] px-2.5 py-1.5 text-[11.5px] text-white/85"
+                          className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.14] bg-white/[0.06] px-2.5 py-1 text-[11px] text-white/85 sm:py-1.5 sm:text-[11.5px]"
                         >
                           <Icon name="check" size={10} strokeWidth={2.8} className="text-[#2BE673]" />
                           {t}
@@ -315,15 +345,15 @@ export default function OfferPopup() {
                       ))}
                     </ul>
 
-                    <div className="mt-7 flex flex-wrap items-center gap-4">
-                      <span className="shimmer-wrap">
+                    <div className="mt-4 flex flex-wrap items-center gap-3 sm:mt-7 sm:gap-4">
+                      <span className="shimmer-wrap w-full sm:w-auto">
                         <a
                           href={whatsappLink(WA_MESSAGE)}
                           target="_blank"
                           rel="noopener noreferrer"
                           onClick={dismiss}
                           data-cursor="hover"
-                          className="group relative flex items-center justify-center gap-2.5 overflow-hidden rounded-full bg-[linear-gradient(145deg,#2BE673,#25D366_45%,#128C4B)] px-7 py-4 text-[15px] font-semibold text-white shadow-[0_14px_36px_-10px_rgba(37,211,102,0.95)] transition-transform duration-500 ease-premium hover:scale-[1.02]"
+                          className="group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-full bg-[linear-gradient(145deg,#2BE673,#25D366_45%,#128C4B)] px-6 py-3.5 text-[14.5px] font-semibold sm:w-auto sm:px-7 sm:py-4 sm:text-[15px] text-white shadow-[0_14px_36px_-10px_rgba(37,211,102,0.95)] transition-transform duration-500 ease-premium hover:scale-[1.02]"
                         >
                           <span
                             aria-hidden="true"
@@ -342,12 +372,12 @@ export default function OfferPopup() {
                   </div>
 
                   {/* ---------------- the story ---------------- */}
-                  <div className="relative p-6 pb-14 pt-2 sm:p-8 sm:pb-16 sm:pt-10">
+                  <div className="relative px-5 pb-4 pt-0 sm:p-8 sm:pb-16 sm:pt-10">
                     <MiniSite reduced={reduced} />
 
                     <span
                       aria-hidden="true"
-                      className="absolute -bottom-1 left-1 z-20 flex h-[72px] w-[72px] sm:-bottom-3 sm:left-4 sm:h-[78px] sm:w-[78px] -rotate-[14deg] flex-col items-center justify-center rounded-full border-2 border-dashed border-[#2BE673]/70 bg-[#06100b]/95 text-center shadow-[0_0_34px_-8px_rgba(43,230,115,0.9)] sm:left-5"
+                      className="absolute bottom-1 left-2 z-20 flex h-16 w-16 -rotate-[14deg] flex-col items-center justify-center sm:-bottom-3 sm:left-4 sm:h-[78px] sm:w-[78px] rounded-full border-2 border-dashed border-[#2BE673]/70 bg-[#06100b]/95 text-center shadow-[0_0_34px_-8px_rgba(43,230,115,0.9)] sm:left-5"
                     >
                       <span className="font-display text-[21px] font-bold leading-none text-[#2BE673]">
                         &#8377;0

@@ -43,12 +43,30 @@ export default function Reveal({
 }
 
 /** Staggered container, pair with <RevealItem>. */
-export function RevealGroup({ children, className = '', stagger = 0.08, delay = 0, amount = 0.2, once = true }) {
+export function RevealGroup({
+  children,
+  className = '',
+  stagger = 0.08,
+  delay = 0,
+  amount = 0.2,
+  once = true,
+  /* the group is sometimes the scroll container itself (see the work slider),
+     and that needs a handle on the real element */
+  innerRef,
+  ...rest
+}) {
   const reduced = useReducedMotion()
-  if (reduced) return <div className={className}>{children}</div>
+  if (reduced)
+    return (
+      <div ref={innerRef} className={className} {...rest}>
+        {children}
+      </div>
+    )
   return (
     <motion.div
+      ref={innerRef}
       className={className}
+      {...rest}
       initial="hidden"
       whileInView="show"
       viewport={{ once, amount }}
