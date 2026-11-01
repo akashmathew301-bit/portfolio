@@ -105,10 +105,10 @@ export default function Hero() {
   const headline = [
     'I build websites',
     {
-      text: 'that bring customers.',
+      text: 'that get you calls.',
       node: (
         <>
-          that <span className="text-grad">bring customers.</span>
+          that <span className="text-grad">get you calls.</span>
         </>
       ),
     },
@@ -174,15 +174,23 @@ export default function Hero() {
               initial={{ opacity: 0, y: 18 }}
               animate={loaded ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8, delay: 0.76 }}
-              className="mt-8 flex flex-wrap items-center gap-3 sm:gap-4"
+              className="mt-8 flex items-center gap-2.5 sm:flex-wrap sm:gap-4"
             >
-              <MagneticButton size="lg" icon="arrowRight" onClick={() => scrollToId('contact', -40)}>
+              <MagneticButton
+                size="lg"
+                icon="arrowRight"
+                block
+                className="min-w-0 flex-1 sm:flex-none"
+                onClick={() => scrollToId('contact', -40)}
+              >
                 Start a Project
               </MagneticButton>
               <MagneticButton
                 size="lg"
                 variant="outline"
                 icon="whatsapp"
+                block
+                className="min-w-0 flex-1 sm:flex-none"
                 href={whatsappLink(HERO_WA_MESSAGE)}
                 target="_blank"
                 rel="noopener noreferrer"

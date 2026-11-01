@@ -7,7 +7,7 @@ export const site = {
   brand: 'Akash Web Solutions',
   role: 'Web Developer & Digital Growth Partner',
   location: 'Coimbatore, India',
-  tagline: 'I build websites that bring customers.',
+  tagline: 'I build websites that get you calls.',
   intro:
     'A website nobody finds is just an expense. I build the ones that get found on Google, get read in five seconds, and get you the call. Wherever your business is.',
 

@@ -25,6 +25,9 @@ export default function MagneticButton({
   className = '',
   strength = 0.3,
   shimmer,
+  /* fill the wrapper instead of sizing to the label, for rows where two
+     buttons share the width evenly */
+  block = false,
   ...rest
 }) {
   const ref = useMagnetic({ strength })
@@ -33,10 +36,12 @@ export default function MagneticButton({
      shimmer={false} for the rare button that should sit quiet */
   const ring = shimmer ?? variant !== 'ghost'
 
+  /* lg shrinks below sm so a pair of them fits one phone row rather than
+     wrapping onto two. Only the hero and the orbit banner use lg. */
   const sizes = {
     sm: 'px-5 py-2.5 text-sm',
     md: 'px-7 py-3.5 text-[15px]',
-    lg: 'px-8 py-4 text-base',
+    lg: 'px-4 py-3.5 text-[13.5px] sm:px-8 sm:py-4 sm:text-base',
   }
 
   const button = (
@@ -46,7 +51,9 @@ export default function MagneticButton({
       onClick={onClick}
       type={href ? undefined : rest.type || 'button'}
       data-cursor="hover"
-      className={`group relative inline-flex select-none items-center justify-center gap-2.5 overflow-hidden rounded-full font-medium tracking-tight transition-[box-shadow,border-color,background-color] duration-500 ease-premium will-tf ${sizes[size]} ${VARIANTS[variant]} ${ring ? '' : className}`}
+      className={`group relative inline-flex select-none items-center justify-center gap-2 overflow-hidden whitespace-nowrap rounded-full font-medium tracking-tight transition-[box-shadow,border-color,background-color] duration-500 ease-premium will-tf sm:gap-2.5 ${
+        block ? 'w-full' : ''
+      } ${sizes[size]} ${VARIANTS[variant]} ${ring ? '' : className}`}
       {...rest}
     >
       {/* light sweep */}
@@ -54,13 +61,13 @@ export default function MagneticButton({
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 -translate-x-full bg-[linear-gradient(110deg,transparent,rgba(255,255,255,0.28),transparent)] transition-transform duration-[900ms] ease-premium group-hover:translate-x-full"
       />
-      <span data-magnetic-label className="relative z-10 inline-flex items-center gap-2.5">
+      <span data-magnetic-label className="relative z-10 inline-flex items-center gap-2 sm:gap-2.5">
         {children}
         {icon && (
           <Icon
             name={icon}
-            size={17}
-            className="transition-transform duration-500 ease-premium group-hover:translate-x-0.5"
+            size={16}
+            className="shrink-0 transition-transform duration-500 ease-premium group-hover:translate-x-0.5"
           />
         )}
       </span>
