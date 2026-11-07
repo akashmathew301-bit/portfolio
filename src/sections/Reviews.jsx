@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import Icon from '../components/Icon'
 import SectionHeading from '../components/SectionHeading'
@@ -9,7 +9,22 @@ import useMediaQuery from '../hooks/useMediaQuery'
 import useReducedMotion from '../hooks/useReducedMotion'
 import reviews from '../data/reviews'
 
-const AUTOPLAY_MS = 5200
+/**
+ * Autoplay is slower on a phone than on a desktop. There is one card on screen
+ * instead of three, so the quote on it is the only thing being read, and it is
+ * read on a small screen. 5.2s was enough of a glance for the coverflow and
+ * not nearly enough here.
+ */
+const AUTOPLAY_WIDE_MS = 5200
+const AUTOPLAY_TOUCH_MS = 7800
+
+/**
+ * How long autoplay keeps out of the way after a swipe, a tap or an arrow.
+ * Without it the next tick could land a fraction of a second after the finger
+ * left the screen and yank the card the visitor just chose.
+ */
+const QUIET_AFTER_INPUT_MS = 4000
+
 const EASE = [0.22, 1, 0.36, 1]
 
 /**
@@ -111,14 +126,157 @@ export default function Reviews() {
   const count = reviews.length
   const [index, setIndex] = useState(0)
   const [paused, setPaused] = useState(false)
+  const [inView, setInView] = useState(false)
 
-  const go = useCallback((dir) => setIndex((i) => (i + dir + count) % count), [count])
+  const sectionRef = useRef(null)
+  const trackRef = useRef(null)
+  /* when a human last touched the carousel, so autoplay can keep its distance */
+  const inputAtRef = useRef(0)
+  /* which way autoplay is walking the phone track, see advance() */
+  const dirRef = useRef(1)
+
+  /* Autoplay only while the carousel is on screen. Otherwise someone scrolling
+     down arrives at a quote that is already halfway through leaving. */
+  useEffect(() => {
+    const el = sectionRef.current
+    if (!el) return
+    const io = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting), {
+      threshold: 0.25,
+    })
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
+
+  /* Centre card i in the phone track. Measured off the card itself, so it lands
+     exactly where snapping would and the track's padding does not matter. */
+  const scrollToCard = useCallback(
+    (i, smooth = true) => {
+      const el = trackRef.current
+      const card = el?.children?.[i]
+      if (!card) return
+      el.scrollTo({
+        left: card.offsetLeft - (el.clientWidth - card.offsetWidth) / 2,
+        behavior: smooth && !reduced ? 'smooth' : 'auto',
+      })
+    },
+    [reduced],
+  )
+
+  const go = useCallback(
+    (dir) => {
+      inputAtRef.current = Date.now()
+      if (isWide) {
+        setIndex((i) => (i + dir + count) % count)
+        return
+      }
+      dirRef.current = dir
+      const next = (index + dir + count) % count
+      /* wrapping an end is a scroll across the whole track, so take it instantly
+         rather than smearing every quote past the reader on the way */
+      scrollToCard(next, Math.abs(next - index) === 1)
+    },
+    [isWide, count, index, scrollToCard],
+  )
+
+  const goTo = useCallback(
+    (i) => {
+      inputAtRef.current = Date.now()
+      if (isWide) {
+        setIndex(i)
+        return
+      }
+      scrollToCard(i, Math.abs(i - index) <= 2)
+    },
+    [isWide, index, scrollToCard],
+  )
+
+  /* One step of autoplay.
+     The coverflow loops freely: its cards are stacked in 3D, so last-to-first
+     costs the same move as any other. The phone track cannot loop that cheaply,
+     so it walks to the end and turns around instead. */
+  const advance = useCallback(() => {
+    if (isWide) {
+      setIndex((i) => (i + 1) % count)
+      return
+    }
+    let dir = dirRef.current
+    if (index + dir > count - 1) dir = -1
+    else if (index + dir < 0) dir = 1
+    dirRef.current = dir
+    scrollToCard(index + dir)
+  }, [isWide, count, index, scrollToCard])
 
   useEffect(() => {
-    if (paused || reduced || count < 2) return
-    const id = window.setInterval(() => go(1), AUTOPLAY_MS)
+    if (paused || reduced || count < 2 || !inView) return
+    /* advance() is rebuilt whenever the index moves, so this interval is too:
+       a swipe, a dot or an arrow restarts the clock rather than inheriting
+       whatever was left of the previous tick. That leftover was the old bug,
+       a swipe could be followed by an autoplay jump a moment later. */
+    const id = window.setInterval(
+      () => {
+        if (Date.now() - inputAtRef.current < QUIET_AFTER_INPUT_MS) return
+        advance()
+      },
+      isWide ? AUTOPLAY_WIDE_MS : AUTOPLAY_TOUCH_MS,
+    )
     return () => window.clearInterval(id)
-  }, [paused, reduced, count, go])
+  }, [paused, reduced, count, inView, isWide, advance])
+
+  /* Which card the phone track has settled on, read from the real scroll
+     position so a flick, a dot and an arrow all report the same answer. */
+  useEffect(() => {
+    const el = trackRef.current
+    if (isWide || !el || count < 2) return
+    let ticking = false
+
+    const read = () => {
+      ticking = false
+      const cards = el.children
+      if (!cards.length) return
+      const middle = el.scrollLeft + el.clientWidth / 2
+      let best = 0
+      let bestGap = Infinity
+      for (let i = 0; i < cards.length; i++) {
+        const gap = Math.abs(cards[i].offsetLeft + cards[i].offsetWidth / 2 - middle)
+        if (gap < bestGap) {
+          bestGap = gap
+          best = i
+        }
+      }
+      setIndex(best)
+    }
+
+    const onScroll = () => {
+      if (ticking) return
+      ticking = true
+      window.requestAnimationFrame(read)
+    }
+    const onInput = () => {
+      inputAtRef.current = Date.now()
+    }
+
+    read()
+    el.addEventListener('scroll', onScroll, { passive: true })
+    el.addEventListener('pointerdown', onInput, { passive: true })
+    el.addEventListener('touchstart', onInput, { passive: true })
+    el.addEventListener('wheel', onInput, { passive: true })
+    return () => {
+      el.removeEventListener('scroll', onScroll)
+      el.removeEventListener('pointerdown', onInput)
+      el.removeEventListener('touchstart', onInput)
+      el.removeEventListener('wheel', onInput)
+    }
+  }, [isWide, count])
+
+  /**
+   * Pause for a keyboard visitor stepping through with the arrow keys, not for
+   * the phone visitor whose tap on a card or an arrow happens to focus the
+   * region. Pausing on that tap left autoplay dead for the rest of the visit.
+   */
+  const onFocus = (e) => {
+    const el = e.target
+    if (el instanceof HTMLElement && el.matches(':focus-visible')) setPaused(true)
+  }
 
   const onKeyDown = (e) => {
     if (e.key === 'ArrowLeft') {
@@ -153,7 +311,7 @@ export default function Reviews() {
   }
 
   return (
-    <section id="reviews" className="section-pad relative z-10 overflow-hidden">
+    <section ref={sectionRef} id="reviews" className="section-pad relative z-10 overflow-hidden">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute left-1/2 top-1/2 h-[50vh] w-[90vw] max-w-4xl -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(10,108,255,0.09),transparent_70%)] blur-3xl"
@@ -183,9 +341,11 @@ export default function Reviews() {
       </div>
 
       {/* ---------------- the carousel ----------------
-           Two layouts, one state: a 3D coverflow where there is room for it,
-           stacked cross-fading cards where there is not. Drag, arrow keys and
-           dots move both; autoplay pauses on hover and focus. */}
+           Two layouts, one index: a 3D coverflow where there is room for it,
+           a native scroll-snap track where there is not. Swipe, arrow keys,
+           arrows and dots move both; autoplay pauses on hover, on keyboard
+           focus, while the section is off screen, and for a few seconds after
+           any input. */}
       <div
         role="region"
         aria-roledescription="carousel"
@@ -194,7 +354,7 @@ export default function Reviews() {
         onKeyDown={onKeyDown}
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
-        onFocus={() => setPaused(true)}
+        onFocus={onFocus}
         onBlur={() => setPaused(false)}
         className="relative mt-9 select-none outline-none sm:mt-10"
       >
@@ -242,38 +402,27 @@ export default function Reviews() {
             })}
           </div>
         ) : (
-          /* ---------------- stacked cards, below lg ----------------
-             The coverflow has nothing to spread out at this width: the
-             neighbours sit exactly behind the active card, so it was building
-             a pile of invisible 3D layers to show one. Here the cards share a
-             single grid cell and cross-fade in place. The cell is as tall as
-             the longest quote, so no card clips its own words and the page
-             never changes height as the autoplay moves on. */
+          /* ---------------- native snap track, below lg ----------------
+             This was a pile of cross-fading cards sharing one grid cell.
+             Nothing followed the finger there, so a swipe was a guess that
+             either did nothing or teleported the next card in, and it read as
+             the carousel flicking past on its own.
+
+             It is a scroll-snap track now, the same as the work slider: the
+             swipe is the browser's own, so it keeps its momentum, its rubber
+             band and its snapping for free, and the dots follow the scroll
+             position rather than the other way round. */
           <div className="container-x">
-            <div className="mx-auto grid w-full max-w-[460px]">
-              {reviews.map((review, i) => {
-                const current = i === index
-                return (
-                  <motion.div
-                    key={i}
-                    aria-hidden={!current}
-                    className="flex cursor-grab [grid-area:1/1] active:cursor-grabbing"
-                    initial={false}
-                    animate={{ opacity: current ? 1 : 0, scale: current ? 1 : 0.97 }}
-                    transition={{ duration: reduced ? 0 : 0.42, ease: EASE }}
-                    style={{ pointerEvents: current ? 'auto' : 'none' }}
-                    drag={count > 1 ? 'x' : false}
-                    dragConstraints={{ left: 0, right: 0 }}
-                    dragElastic={0.12}
-                    onDragEnd={(_, info) => {
-                      if (info.offset.x < -60) go(1)
-                      else if (info.offset.x > 60) go(-1)
-                    }}
-                  >
-                    <ReviewCard review={review} active={current} />
-                  </motion.div>
-                )
-              })}
+            <div
+              ref={trackRef}
+              data-lenis-prevent="true"
+              className="no-scrollbar -mx-5 flex snap-x snap-mandatory items-stretch gap-4 overflow-x-auto overscroll-x-contain px-5 pb-2 sm:-mx-8 sm:px-8"
+            >
+              {reviews.map((review, i) => (
+                <div key={i} className="flex w-[85vw] max-w-[420px] shrink-0 snap-center sm:w-[400px]">
+                  <ReviewCard review={review} active={i === index} />
+                </div>
+              ))}
             </div>
           </div>
         )}
@@ -297,7 +446,7 @@ export default function Reviews() {
                 type="button"
                 aria-label={'Show testimonial ' + (i + 1) + ' of ' + count + ', ' + r.name}
                 aria-current={i === index ? 'true' : undefined}
-                onClick={() => setIndex(i)}
+                onClick={() => goTo(i)}
                 className="group flex h-9 items-center px-2"
               >
                 <span
